@@ -3,4 +3,5 @@
 **/.firebaserc
 **/.firebase
 
-**/functions/key.json
+**/functions/*key*.json
+
