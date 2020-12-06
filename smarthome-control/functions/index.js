@@ -93,6 +93,9 @@ app.onSync((body) => {
     if (deviceitems[devicecounter].traits.includes('action.devices.traits.Brightness')) {
       firebaseRef.child(deviceitems[devicecounter].id).child('Brightness').set({brightness: 10});
     }
+    if (deviceitems[devicecounter].traits.includes('action.devices.traits.StartStop')) {
+      firebaseRef.child(deviceitems[devicecounter].id).child('StartStop').set({isRunning: false, availableZones: deviceitems[devicecounter].attributes.availableZones, activeZones: ["none"]});
+    }
     if (deviceitems[devicecounter].traits.includes('action.devices.traits.ColorSetting')) {
       firebaseRef.child(deviceitems[devicecounter].id).child('ColorSetting').set({color: {name: "deep sky blue", spectrumRGB: 49151}});
     }
@@ -123,6 +126,9 @@ const queryFirebase = async (deviceId) => {
 
   if (Object.prototype.hasOwnProperty.call(snapshotVal, 'OnOff')) {
     asyncvalue = Object.assign(asyncvalue, {on: snapshotVal.OnOff.on});
+  }
+  if (Object.prototype.hasOwnProperty.call(snapshotVal, 'StartStop')){
+    asyncvalue = Object.assign(asyncvalue, {isRunning: snapshotVal.StartStop.isRunning, availableZones: snapshotVal.StartStop.availableZones, activeZones: snapshotVal.StartStop.activeZones})
   }
   if (Object.prototype.hasOwnProperty.call(snapshotVal, 'Brightness')) {
     asyncvalue = Object.assign(asyncvalue, {brightness: snapshotVal.Brightness.brightness});
@@ -170,6 +176,18 @@ const queryDevice = async (deviceId) => {
 
   if (Object.prototype.hasOwnProperty.call(data, 'on')) {
     datavalue = Object.assign(datavalue, {on: data.on});
+  }
+  if(Object.prototype.hasOwnProperty.call(data, 'isRunning')){
+    datavalue = Object.assign(datavalue, {isRunning: data.isRunning});
+  }
+  if(Object.prototype.hasOwnProperty.call(data, 'availableZones')){
+    datavalue = Object.assign(datavalue, {availableZones: data.availableZones});
+  }
+  if(Object.prototype.hasOwnProperty.call(data, 'zone')){
+    datavalue = Object.assign(datavalue, {zone: data.zone});
+  }
+  if (Object.prototype.hasOwnProperty.call(data, 'activeZones')){
+    datavalue = Object.assign(datavalue, {activeZones: data.activeZones});
   }
   if (Object.prototype.hasOwnProperty.call(data, 'brightness')) {
     datavalue = Object.assign(datavalue, {brightness: data.brightness});
@@ -233,6 +251,10 @@ const updateDevice = async (execution,deviceId) => {
   const {params,command} = execution;
   let state, ref;
   switch (command) {
+    case 'action.devices.commands.StartStop':
+      state = {isRunning: params.start};
+      ref = firebaseRef.child(deviceId).child('StartStop');
+      break;
     case 'action.devices.commands.OnOff':
       state = {on: params.on};
       ref = firebaseRef.child(deviceId).child('OnOff');
@@ -339,6 +361,9 @@ exports.reportstate = functions.database.ref('{deviceId}').onWrite(async (change
 
   if (Object.prototype.hasOwnProperty.call(snapshot, 'OnOff')) {
     syncvalue = Object.assign(syncvalue, {on: snapshot.OnOff.on});
+  }
+  if (Object.prototype.hasOwnProperty.call(snapshot, 'StartStop')) {
+    syncvalue = Object.assign(syncvalue, {isRunning: snapshot.StartStop.isRunning, activeZones: snapshot.StartStop.activeZones, availableZones: snapshot.StartStop.availableZones});
   }
   if (Object.prototype.hasOwnProperty.call(snapshot, 'Brightness')) {
     syncvalue = Object.assign(syncvalue, {brightness: snapshot.Brightness.brightness});
