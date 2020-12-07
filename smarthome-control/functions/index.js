@@ -100,7 +100,7 @@ app.onSync((body) => {
       // firebaseRef.child(deviceitems[devicecounter].id).child('StartStop').set({isRunning: false, availableZones: deviceitems[devicecounter].attributes.availableZones, activeZones: ["none"]});
     }
     if (deviceitems[devicecounter].traits.includes('action.devices.traits.Volume')){
-      firebaseRef.child(deviceitems[devicecounter].id).child('Volume').set({currentVolume: 50, isMuted: false});
+      // firebaseRef.child(deviceitems[devicecounter].id).child('Volume').set({currentVolume: 50, isMuted: false});
     }
     if (deviceitems[devicecounter].traits.includes('action.devices.traits.ColorSetting')) {
       firebaseRef.child(deviceitems[devicecounter].id).child('ColorSetting').set({color: {name: "deep sky blue", spectrumRGB: 49151}});
@@ -295,7 +295,7 @@ const updateDevice = async (execution,deviceId) => {
       ref = firebaseRef.child(deviceId).child('Volume');
       break;
     case 'action.devices.commands.volumeRelative':
-      state = {currentVolume: params.relativeSteps};
+      state = {currentVolume: currentVolume+params.relativeSteps};
       ref = firebaseRef.child(deviceId).child('Volume');
       break;
     case 'action.devices.commands.mute':
