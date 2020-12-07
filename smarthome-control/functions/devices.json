@@ -284,5 +284,35 @@
     "attributes": {
       "commandOnlyOnOff": false
     }
+  },
+  {
+    "id": "upstairs-tv",
+    "type": "action.devices.types.TV",
+    "traits": [
+      "action.devices.traits.Volume"
+    ],
+    "name": {
+      "defaultNames": [
+        "PiMation Sprinkler System"
+      ],
+      "name": "Upstairs TV",
+      "nicknames": [
+        "Zone 10"
+      ]
+    },
+    "deviceInfo": {
+        "manufacturer": "GTECH",
+        "model": "PiMation",
+        "hwVersion": "1.0",
+        "swVersion": "2.0"
+    },
+    "willReportState": true,
+    "attributes": {
+	"volumeMaxLevel": 100,
+	"volumeCanMuteAndUnmute": true,
+        "levelStepSize": 5,
+        "commandOnlyVolume": true,
+        "volumeDefaultPercentage": 2
+    }
   }
 ]

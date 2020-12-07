@@ -99,6 +99,9 @@ app.onSync((body) => {
     if (deviceitems[devicecounter].traits.includes('action.devices.traits.StartStop')) {
       // firebaseRef.child(deviceitems[devicecounter].id).child('StartStop').set({isRunning: false, availableZones: deviceitems[devicecounter].attributes.availableZones, activeZones: ["none"]});
     }
+    if (deviceitems[devicecounter].traits.includes('action.devices.traits.Volume')){
+      firebaseRef.child(deviceitems[devicecounter].id).child('Volume').set({currentVolume: 50, isMuted: false});
+    }
     if (deviceitems[devicecounter].traits.includes('action.devices.traits.ColorSetting')) {
       firebaseRef.child(deviceitems[devicecounter].id).child('ColorSetting').set({color: {name: "deep sky blue", spectrumRGB: 49151}});
     }
@@ -129,6 +132,11 @@ const queryFirebase = async (deviceId) => {
 
   if (Object.prototype.hasOwnProperty.call(snapshotVal, 'OnOff')) {
     asyncvalue = Object.assign(asyncvalue, {on: snapshotVal.OnOff.on});
+  }
+  if (Object.prototype.hasOwnProperty.call(snapshotVal, 'Volume')){
+    if(Object.prototype.hasOwnProperty.call(snapshotVal.Volume, 'currentVolume')){
+      asyncvalue = Object.assign(asyncvalue, {currentVolume: snapshotVal.Volume.currentVolume});
+    }
   }
   if (Object.prototype.hasOwnProperty.call(snapshotVal, 'StartStop')){
     if(Object.prototype.hasOwnProperty.call(snapshotVal.StartStop, 'isRunning')){
@@ -201,6 +209,9 @@ const queryDevice = async (deviceId) => {
   }
   if(Object.prototype.hasOwnProperty.call(data, 'isRunning')){
     datavalue = Object.assign(datavalue, {isRunning: data.isRunning});
+  }
+  if(Object.prototype.hasOwnProperty.call(data, 'currentVolume')){
+    datavalue = Object.assign(datavalue, {isRunning: data.currentVolume});
   }
   if(Object.prototype.hasOwnProperty.call(data, 'availableZones')){
     datavalue = Object.assign(datavalue, {availableZones: data.availableZones});
@@ -290,6 +301,10 @@ const updateDevice = async (execution,deviceId) => {
     case 'action.devices.commands.TimerAdjust':
       state = {timerTimeSec: params.timerTimeSec};
       ref = firebaseRef.child(deviceId).child('Timer');
+      break;
+    case 'action.devices.commands.setVolume':
+      state = {currentVolume: params.volumeLevel};
+      ref = firebaseRef.child(deviceId).child('Volume');
       break;
     case 'action.devices.commands.OnOff':
       state = {on: params.on};
@@ -409,8 +424,11 @@ exports.reportstate = functions.database.ref('{deviceId}').onWrite(async (change
   if (Object.prototype.hasOwnProperty.call(snapshot, 'Brightness')) {
     syncvalue = Object.assign(syncvalue, {brightness: snapshot.Brightness.brightness});
   }
-  if (Object.prototype.hasOwnProperty.call(snapshot, 'ColorSetting')) {
-    syncvalue = Object.assign(syncvalue, {color: snapshot.ColorSetting.color});
+  if (Object.prototype.hasOwnProperty.call(snapshot, 'Brightness')) {
+    syncvalue = Object.assign(syncvalue, {brightness: snapshot.Brightness.brightness});  
+  }
+  if (Object.prototype.hasOwnProperty.call(snapshot, 'Volume')) {
+    syncvalue = Object.assign(syncvalue, {color: snapshot.Volume.currentVolume});
   }
   if (Object.prototype.hasOwnProperty.call(snapshot, 'FanSpeed')) {
     if (Object.prototype.hasOwnProperty.call(snapshot.FanSpeed, 'currentFanSpeedSetting')) {
