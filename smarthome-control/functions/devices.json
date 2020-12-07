@@ -309,12 +309,12 @@
     },
     "willReportState": true,
     "attributes": {
-	"volumeMaxLevel": 100,
-	"volumeCanMuteAndUnmute": true,
-        "levelStepSize": 5,
-        "commandOnlyVolume": false,
-        "volumeDefaultPercentage": 2,
-	"commandOnlyOnOff": false
+      "volumeMaxLevel": 100,
+      "volumeCanMuteAndUnmute": true,
+      "levelStepSize": 5,
+      "commandOnlyVolume": true,
+      "volumeDefaultPercentage": 3,
+	  "commandOnlyOnOff": false
     }
   }
 ]

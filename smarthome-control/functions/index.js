@@ -113,7 +113,7 @@ app.onSync((body) => {
     if (deviceitems[devicecounter].traits.includes('action.devices.traits.FanSpeed')) {
       firebaseRef.child(deviceitems[devicecounter].id).child('FanSpeed').set({currentFanSpeedSetting: 20.0});
     }
-  }s
+  }
   return {
     requestId: body.requestId,
     payload: {
@@ -135,20 +135,6 @@ const queryFirebase = async (deviceId) => {
   }
   if (Object.prototype.hasOwnProperty.call(snapshotVal, 'Volume')){
       asyncvalue = Object.assign(asyncvalue, {currentVolume: snapshotVal.Volume.currentVolume,isMuted:snapshotVal.Volume.isMuted});
-  }
-  if (Object.prototype.hasOwnProperty.call(snapshotVal, 'StartStop')){
-    if(Object.prototype.hasOwnProperty.call(snapshotVal.StartStop, 'isRunning')){
-      asyncvalue = Object.assign(asyncvalue, {isRunning: snapshotVal.StartStop.isRunning});
-    }
-    if(Object.prototype.hasOwnProperty.call(snapshotVal.StartStop, 'availableZones')){
-      asyncvalue = Object.assign(asyncvalue, {availableZones: snapshotVal.StartStop.availableZones});
-    }
-    if(Object.prototype.hasOwnProperty.call(snapshotVal.StartStop, 'activeZones')){
-      asyncvalue = Object.assign(asyncvalue, {activeZones: snapshotVal.StartStop.activeZones});
-    }
-    if(Object.prototype.hasOwnProperty.call(snapshotVal.StartStop, 'zone')){
-      asyncvalue = Object.assign(asyncvalue, {activeZones: snapshotVal.StartStop.zone});
-    }
   }
   if (Object.prototype.hasOwnProperty.call(snapshotVal, 'Timer')){
     if(Object.prototype.hasOwnProperty.call(snapshotVal.Timer, 'timerRemainingSec')){
@@ -288,6 +274,7 @@ app.onQuery(async (body) => {
 });
 
 const updateDevice = async (execution,deviceId) => {
+  /* Commands */
   const {params,command} = execution;
   let state, ref;
   switch (command) {
@@ -305,6 +292,10 @@ const updateDevice = async (execution,deviceId) => {
       break;
     case 'action.devices.commands.setVolume':
       state = {currentVolume: params.volumeLevel};
+      ref = firebaseRef.child(deviceId).child('Volume');
+      break;
+    case 'action.devices.commands.volumeRelative':
+      state = {currentVolume: params.relativeSteps};
       ref = firebaseRef.child(deviceId).child('Volume');
       break;
     case 'action.devices.commands.mute':
