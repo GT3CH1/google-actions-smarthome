@@ -289,7 +289,8 @@
     "id": "upstairs-tv",
     "type": "action.devices.types.TV",
     "traits": [
-      "action.devices.traits.Volume"
+      "action.devices.traits.Volume",
+      "action.devices.traits.OnOff"
     ],
     "name": {
       "defaultNames": [
@@ -311,8 +312,9 @@
 	"volumeMaxLevel": 100,
 	"volumeCanMuteAndUnmute": true,
         "levelStepSize": 5,
-        "commandOnlyVolume": true,
-        "volumeDefaultPercentage": 2
+        "commandOnlyVolume": false,
+        "volumeDefaultPercentage": 2,
+	"commandOnlyOnOff": false
     }
   }
 ]
