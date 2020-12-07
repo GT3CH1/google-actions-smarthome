@@ -88,13 +88,16 @@ app.onSync((body) => {
       }
     }
     if (deviceitems[devicecounter].traits.includes('action.devices.traits.OnOff')) {
-      firebaseRef.child(deviceitems[devicecounter].id).child('OnOff').set({on: false});
+      // firebaseRef.child(deviceitems[devicecounter].id).child('OnOff').set({on: false});
     }
     if (deviceitems[devicecounter].traits.includes('action.devices.traits.Brightness')) {
       firebaseRef.child(deviceitems[devicecounter].id).child('Brightness').set({brightness: 10});
     }
+    if (deviceitems[devicecounter].traits.includes('action.devices.traits.Timer')) {
+      // firebaseRef.child(deviceitems[devicecounter].id).child('Timer').set({timerRemainingSec: 0,timerTimeSec: 0});
+    }
     if (deviceitems[devicecounter].traits.includes('action.devices.traits.StartStop')) {
-      firebaseRef.child(deviceitems[devicecounter].id).child('StartStop').set({isRunning: false, availableZones: deviceitems[devicecounter].attributes.availableZones, activeZones: ["none"]});
+      // firebaseRef.child(deviceitems[devicecounter].id).child('StartStop').set({isRunning: false, availableZones: deviceitems[devicecounter].attributes.availableZones, activeZones: ["none"]});
     }
     if (deviceitems[devicecounter].traits.includes('action.devices.traits.ColorSetting')) {
       firebaseRef.child(deviceitems[devicecounter].id).child('ColorSetting').set({color: {name: "deep sky blue", spectrumRGB: 49151}});
@@ -128,7 +131,26 @@ const queryFirebase = async (deviceId) => {
     asyncvalue = Object.assign(asyncvalue, {on: snapshotVal.OnOff.on});
   }
   if (Object.prototype.hasOwnProperty.call(snapshotVal, 'StartStop')){
-    asyncvalue = Object.assign(asyncvalue, {isRunning: snapshotVal.StartStop.isRunning, availableZones: snapshotVal.StartStop.availableZones, activeZones: snapshotVal.StartStop.activeZones})
+    if(Object.prototype.hasOwnProperty.call(snapshotVal.StartStop, 'isRunning')){
+      asyncvalue = Object.assign(asyncvalue, {isRunning: snapshotVal.StartStop.isRunning});
+    }
+    if(Object.prototype.hasOwnProperty.call(snapshotVal.StartStop, 'availableZones')){
+      asyncvalue = Object.assign(asyncvalue, {availableZones: snapshotVal.StartStop.availableZones});
+    }
+    if(Object.prototype.hasOwnProperty.call(snapshotVal.StartStop, 'activeZones')){
+      asyncvalue = Object.assign(asyncvalue, {activeZones: snapshotVal.StartStop.activeZones});
+    }
+    if(Object.prototype.hasOwnProperty.call(snapshotVal.StartStop, 'zone')){
+      asyncvalue = Object.assign(asyncvalue, {activeZones: snapshotVal.StartStop.zone});
+    }
+  }
+  if (Object.prototype.hasOwnProperty.call(snapshotVal, 'Timer')){
+    if(Object.prototype.hasOwnProperty.call(snapshotVal.Timer, 'timerRemainingSec')){
+      asyncvalue = Object.assign(asyncvalue, {timerRemainingSec: snapshotVal.Timer.timerRemainingSec});
+    }
+    if(Object.prototype.hasOwnProperty.call(snapshotVal.Timer, 'timerTimeSec')){
+      asyncvalue = Object.assign(asyncvalue, {timerTimeSec: snapshotVal.Timer.timerTimeSec});
+    }
   }
   if (Object.prototype.hasOwnProperty.call(snapshotVal, 'Brightness')) {
     asyncvalue = Object.assign(asyncvalue, {brightness: snapshotVal.Brightness.brightness});
@@ -185,6 +207,12 @@ const queryDevice = async (deviceId) => {
   }
   if(Object.prototype.hasOwnProperty.call(data, 'zone')){
     datavalue = Object.assign(datavalue, {zone: data.zone});
+  }
+  if(Object.prototype.hasOwnProperty.call(data, 'timerRemainingSec')){
+    datavalue = Object.assign(datavalue, {timerRemainingSec: data.timerRemainingSec});
+  }
+  if(Object.prototype.hasOwnProperty.call(data, 'timerTimeSec')){
+    datavalue = Object.assign(datavalue, {timerTimeSec: data.timerTimeSec});
   }
   if (Object.prototype.hasOwnProperty.call(data, 'activeZones')){
     datavalue = Object.assign(datavalue, {activeZones: data.activeZones});
@@ -254,6 +282,14 @@ const updateDevice = async (execution,deviceId) => {
     case 'action.devices.commands.StartStop':
       state = {isRunning: params.start};
       ref = firebaseRef.child(deviceId).child('StartStop');
+      break;
+    case 'action.devices.commands.TimerStart':
+      state = {timerTimeSec: params.timerTimeSec};
+      ref = firebaseRef.child(deviceId).child('Timer');
+      break;
+    case 'action.devices.commands.TimerAdjust':
+      state = {timerTimeSec: params.timerTimeSec};
+      ref = firebaseRef.child(deviceId).child('Timer');
       break;
     case 'action.devices.commands.OnOff':
       state = {on: params.on};
@@ -364,6 +400,11 @@ exports.reportstate = functions.database.ref('{deviceId}').onWrite(async (change
   }
   if (Object.prototype.hasOwnProperty.call(snapshot, 'StartStop')) {
     syncvalue = Object.assign(syncvalue, {isRunning: snapshot.StartStop.isRunning, activeZones: snapshot.StartStop.activeZones, availableZones: snapshot.StartStop.availableZones});
+  }
+  if (Object.prototype.hasOwnProperty.call(snapshot, 'Timer')) {
+    if (Object.prototype.hasOwnProperty.call(snapshot.Timer, 'timerTimeSec')) {
+      syncvalue = Object.assign(syncvalue, {timerTimeSec: snapshot.Timer.timerTimeSec});
+    }
   }
   if (Object.prototype.hasOwnProperty.call(snapshot, 'Brightness')) {
     syncvalue = Object.assign(syncvalue, {brightness: snapshot.Brightness.brightness});
