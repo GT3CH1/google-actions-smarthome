@@ -312,7 +312,7 @@
       "volumeMaxLevel": 100,
       "volumeCanMuteAndUnmute": true,
       "levelStepSize": 5,
-      "commandOnlyVolume": true,
+      "commandOnlyVolume": false,
       "volumeDefaultPercentage": 3,
 	  "commandOnlyOnOff": false
     }
