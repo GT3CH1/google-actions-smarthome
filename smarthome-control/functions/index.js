@@ -143,7 +143,7 @@ const queryDevice = async (deviceId) => {
     const data = await queryFirebase(deviceId);
     /* device states */
     var datavalue = {};
-    print("Data: " + data)
+    console.log("Data: " + data)
     if (Object.prototype.hasOwnProperty.call(data, 'on')) {
         datavalue = Object.assign(datavalue, {on: data.on});
     }
