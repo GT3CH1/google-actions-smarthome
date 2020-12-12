@@ -239,7 +239,7 @@ const updateDevice = async (execution, deviceId) => {
                 state = {currentVolume: 0};
             else
                 state = {currentVolume: newVol};
-            break; */
+            break;
         case 'action.devices.commands.OnOff':
             state = {on: params.on};
             ref = firebaseRef.child(deviceId).child('OnOff');
