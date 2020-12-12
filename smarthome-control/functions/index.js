@@ -104,6 +104,7 @@ app.onSync((body) => {
             });
         }
     }
+    console.log("JSON (onSync) -> " + JSON.stringify(payload));
     return {
         requestId: body.requestId,
         payload: {
@@ -134,7 +135,6 @@ const queryFirebase = async (deviceId) => {
     }
     if (Object.prototype.hasOwnProperty.call(snapshotVal, 'Volume')) {
         asyncvalue = Object.assign(asyncvalue, {currentVolume: snapshotVal.Volume.currentVolume});
-        console.log("currentVolume snapshot: " + snapshotVal.Volume.currentVolume);
     }
     return asyncvalue;
 }
@@ -143,7 +143,6 @@ const queryDevice = async (deviceId) => {
     const data = await queryFirebase(deviceId);
     /* device states */
     var datavalue = {};
-    console.log("Data: " + data)
     if (Object.prototype.hasOwnProperty.call(data, 'on')) {
         datavalue = Object.assign(datavalue, {on: data.on});
     }
@@ -157,8 +156,10 @@ const queryDevice = async (deviceId) => {
         datavalue = Object.assign(datavalue, {availableInputs: data.availableInputs});
     }
     if (Object.prototype.hasOwnProperty.call(data, 'currentVolume')) {
-        datavalue = Object.assign(datavalue, {currentVolume: data.currentVolume, isMuted: data.isMuted});
-        console.log("Current volume: " + 10);
+        datavalue = Object.assign(datavalue, {currentVolume: data.currentVolume });
+    }
+    if(Object.prototype.hasOwnProperty.call(data, 'isMuted')){
+        datavalue = Object.assign(datavalue, {isMuted: data.isMuted} );
     }
     return datavalue;
 }
@@ -175,13 +176,13 @@ app.onQuery(async (body) => {
         const deviceId = device.id;
         queryPromises.push(queryDevice(deviceId)
             .then((data) => {
-                    // Add response to device payload
-                    payload.devices[deviceId] = data;
+                    payload.devices[deviceId] = data
                 }
             ));
     }
     // Wait for all promises to resolve
     await Promise.all(queryPromises)
+    console.log("JSON (onQuery) -> " + JSON.stringify(payload));
     return {
         requestId: requestId,
         payload: payload,
@@ -209,11 +210,11 @@ const updateDevice = async (execution, deviceId) => {
             }, function (errorObject) {
                 console.log("The read failed: " + errorObject.code);
             });
-            var volStep = (params.relativeSteps * 5);
-            console.log("volStep: " + volStep)
+            var volStep = (params.relativeSteps) * 2;
             if (volStep <= 0 && params.relativeSteps > 0)
                 volStep = 5
             var newVol = currentVol + volStep;
+            console.log("New volume is: " + newVol)
             if (newVol <= 0)
                 state = {currentVolume: 0};
             else
@@ -327,7 +328,7 @@ exports.reportstate = functions.database.ref('{deviceId}').onWrite(async (change
         syncvalue = Object.assign(syncvalue, {currentVolume: snapshot.Volume.currentVolume});
     }
     const postData = {
-        requestId: 'ff36a3ccsiddhy', /* Any unique ID */
+        requestId: 'gtechtest', /* Any unique ID */
         agentUserId: '123', /* Hardcoded user ID */
         payload: {
             devices: {
@@ -337,8 +338,6 @@ exports.reportstate = functions.database.ref('{deviceId}').onWrite(async (change
             }
         }
     }
-    console.log("Device ID: " + context.params.deviceId);
-
     const data = await app.reportState(postData);
     console.log('Report state came back');
     console.info(data);
