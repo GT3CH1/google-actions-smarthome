@@ -224,7 +224,7 @@ const updateDevice = async (execution, deviceId) => {
             state = {isMuted: params.mute};
             ref = firebaseRef.child(deviceId).child('Volume');
             break;
-/*        case 'action.devices.commands.volumeRelative':
+        case 'action.devices.commands.volumeRelative':
             ref = firebaseRef.child(deviceId).child('Volume');
             var currentVol = null;
             ref.child('currentVolume').on("value", function (snapshot) {
@@ -232,9 +232,7 @@ const updateDevice = async (execution, deviceId) => {
             }, function (errorObject) {
                 console.log("The read failed: " + errorObject.code);
             });
-            var volStep = (params.relativeSteps) * 2;
-            if (volStep <= 0 && params.relativeSteps > 0)
-                volStep = 5
+            var volStep = params.relativeSteps * 5;
             var newVol = currentVol + volStep;
             console.log("New volume is: " + newVol)
             if (newVol <= 0)
