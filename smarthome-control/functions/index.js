@@ -104,6 +104,7 @@ app.onSync((body) => {
             });
         }
     }
+    var data;
     data = {
         requestId: body.requestId,
         payload: {
@@ -111,7 +112,7 @@ app.onSync((body) => {
             devices: deviceitems
         },
     };    
-    console.log(JSON.stringify(data));
+    console.log("JSON (onSync) " + JSON.stringify(data));
     return data; 
 });
 
@@ -142,23 +143,29 @@ const queryFirebase = async (deviceId) => {
 
 const queryDevice = async (deviceId) => {
     const data = await queryFirebase(deviceId);
-    /* device states */
+    /* device states  / onQuery */
     var datavalue = {};
+    // Current Volume
+    if (Object.prototype.hasOwnProperty.call(data, 'currentVolume')) {              
+        datavalue = Object.assign(datavalue, {currentVolume: data.currentVolume });
+    }                
+    // On/Off switches                                                               
     if (Object.prototype.hasOwnProperty.call(data, 'on')) {
         datavalue = Object.assign(datavalue, {on: data.on});
     }
+    // Current inputs
     if (Object.prototype.hasOwnProperty.call(data, 'currentInput')) {
         datavalue = Object.assign(datavalue, {currentInput: data.currentInput});
     }
+    // open/close percentage
     if (Object.prototype.hasOwnProperty.call(data, 'openPercent')) {
         datavalue = Object.assign(datavalue, {openPercent: data.openPercent});
     }
+    // list all available inputs
     if (Object.prototype.hasOwnProperty.call(data, 'availableInputs')) {
         datavalue = Object.assign(datavalue, {availableInputs: data.availableInputs});
     }
-    if (Object.prototype.hasOwnProperty.call(data, 'currentVolume')) {
-        datavalue = Object.assign(datavalue, {currentVolume: data.currentVolume });
-    }
+    // is Muted
     if(Object.prototype.hasOwnProperty.call(data, 'isMuted')){
         datavalue = Object.assign(datavalue, {isMuted: data.isMuted} );
     }
@@ -183,11 +190,12 @@ app.onQuery(async (body) => {
     }
     // Wait for all promises to resolve
     await Promise.all(queryPromises)
-    console.log("JSON (onQuery) -> " + JSON.stringify(payload));
-    return {
+    var mydata = {
         requestId: requestId,
         payload: payload,
-    };
+    };    
+    console.log("JSON (onQuery) -> " + JSON.stringify(mydata));
+    return mydata
 });
 
 const updateDevice = async (execution, deviceId) => {
