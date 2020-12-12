@@ -112,6 +112,7 @@ app.onSync((body) => {
         },
     };    
     console.log(JSON.stringify(data));
+    return data; 
 });
 
 
