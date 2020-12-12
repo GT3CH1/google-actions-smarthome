@@ -2,13 +2,14 @@
   "name": "smarthome-control",
   "description": "Codes for controlling devices through the Google Assistant.",
   "engines": {
-    "node": "8"
+    "node": "12"
   },
   "dependencies": {
     "actions-on-google": "^2.12.0",
     "cors": "^2.8.5",
     "firebase-admin": "^8.0.0",
     "firebase-functions": "^3.13.0",
+    "google-auth-library": "^5.6.1",
     "googleapis": "^43.0.0"
   },
   "private": true,

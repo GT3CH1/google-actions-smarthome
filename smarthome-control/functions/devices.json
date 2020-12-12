@@ -3,8 +3,7 @@
     "id": "1",
     "type": "action.devices.types.LIGHT",
     "traits": [
-      "action.devices.traits.OnOff",
-      "action.devices.traits.Brightness"
+      "action.devices.traits.OnOff"
     ],
     "name": {
       "defaultNames": [
@@ -21,7 +20,7 @@
       "hwVersion": "1.0",
       "swVersion": "1.3"
     },
-    "willReportState": true,
+    "willReportState": false,
     "attributes": {
       "commandOnlyOnOff": false
     }
@@ -312,10 +311,10 @@
         "hwVersion": "1.0",
         "swVersion": "2.0"
     },
-    "willReportState": false,
+    "willReportState": true,
     "attributes": {
-      "volumeMaxLevel": 100,
-      "volumeCanMuteAndUnmute": true,
+      "volumeMaxLevel": 99,
+      "volumeCanMuteAndUnmute": false,
       "volumeDefaultPercentage": 20,
       "levelStepSize": 5,
       "commandOnlyVolume": false,
@@ -351,7 +350,8 @@
       ],
       "name": "Garage Door",
       "nicknames": [
-        "Garage"
+        "Garage",
+        "Garage Door"
       ]
     },
     "deviceInfo": {
