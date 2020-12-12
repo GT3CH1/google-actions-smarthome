@@ -86,6 +86,9 @@ app.onSync((body) => {
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.Brightness')) {
             firebaseRef.child(deviceitems[devicecounter].id).child('Brightness').update({brightness: 10});
         }
+        if (deviceitems[devicecounter].traits.includes('action.devices.traits.OpenClose')) {
+            firebaseRef.child(deviceitems[devicecounter].id).child('OpenClose').update({openPercent: 0});
+        }
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.Volume')) {
             var deviceAttributes = deviceitems[devicecounter].attributes;
             firebaseRef.child(deviceitems[devicecounter].id).child('Volume').update({
@@ -120,6 +123,9 @@ const queryFirebase = async (deviceId) => {
     if (Object.prototype.hasOwnProperty.call(snapshotVal, 'OnOff')) {
         asyncvalue = Object.assign(asyncvalue, {on: snapshotVal.OnOff.on});
     }
+    if (Object.prototype.hasOwnProperty.call(snapshotVal, 'OpenClose')) {
+        asyncvalue = Object.assign(asyncvalue, {on: snapshotVal.OpenClose.openPercent});
+    }
     if (Object.prototype.hasOwnProperty.call(snapshotVal, 'InputSelector')) {
         asyncvalue = Object.assign(asyncvalue, {
             currentInput: snapshotVal.InputSelector.currentInput,
@@ -143,6 +149,9 @@ const queryDevice = async (deviceId) => {
     }
     if (Object.prototype.hasOwnProperty.call(data, 'currentInput')) {
         datavalue = Object.assign(datavalue, {currentInput: data.currentInput});
+    }
+    if (Object.prototype.hasOwnProperty.call(data, 'openPercent')) {
+        datavalue = Object.assign(datavalue, {openPercent: data.openPercent});
     }
     if (Object.prototype.hasOwnProperty.call(data, 'availableInputs')) {
         datavalue = Object.assign(datavalue, {availableInputs: data.availableInputs});
@@ -213,6 +222,18 @@ const updateDevice = async (execution, deviceId) => {
         case 'action.devices.commands.OnOff':
             state = {on: params.on};
             ref = firebaseRef.child(deviceId).child('OnOff');
+            break;
+        case 'action.devices.commands.OpenClose':
+            var currentOpenClose;
+            ref = firebaseRef.child(deviceId).child('OpenClose');
+            ref.child('openPercent').on("value", function (snapshot) {
+                currentOpenClose = snapshot.val();
+            }, function (errorObject) {
+                console.log("The read failed: " + errorObject.code);
+            });
+            var newState;
+            newState = (currentOpenClose == 100 ) ? 0 : 100;
+            state = {openPercent: newState};
             break;
         default:
             break;
