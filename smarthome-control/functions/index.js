@@ -104,14 +104,14 @@ app.onSync((body) => {
             });
         }
     }
-    console.log("JSON (onSync) -> " + JSON.stringify(payload));
-    return {
+    data = {
         requestId: body.requestId,
         payload: {
             agentUserId: '123',
             devices: deviceitems
         },
-    };
+    };    
+    console.log(JSON.stringify(data));
 });
 
 
