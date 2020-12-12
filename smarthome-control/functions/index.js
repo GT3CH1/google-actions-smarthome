@@ -99,19 +99,38 @@ app.onSync((body) => {
             }
         }
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.OnOff')) {
-            // firebaseRef.child(deviceitems[devicecounter].id).child('OnOff').set({on: false});
+            firebaseRef.child(deviceitems[devicecounter].id).child('OnOff').update({on: false});
         }
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.Brightness')) {
             firebaseRef.child(deviceitems[devicecounter].id).child('Brightness').set({brightness: 10});
         }
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.Timer')) {
-            // firebaseRef.child(deviceitems[devicecounter].id).child('Timer').set({timerRemainingSec: 0,timerTimeSec: 0});
+            firebaseRef.child(deviceitems[devicecounter].id).child('Timer').update({
+                timerRemainingSec: 0,
+                timerTimeSec: 0
+            });
         }
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.StartStop')) {
-            // firebaseRef.child(deviceitems[devicecounter].id).child('StartStop').set({isRunning: false, availableZones: deviceitems[devicecounter].attributes.availableZones, activeZones: ["none"]});
+            firebaseRef.child(deviceitems[devicecounter].id).child('StartStop').update({
+                isRunning: false,
+                availableZones: deviceitems[devicecounter].attributes.availableZones,
+                activeZones: ["none"]
+            });
         }
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.Volume')) {
-            // firebaseRef.child(deviceitems[devicecounter].id).child('Volume').set({stepSize: deviceitems[devicecounter].attributes.levelStepSize, currentVolume: 10});
+            deviceAttributes = deviceitems[devicecounter].attributes;
+            firebaseRef.child(deviceitems[devicecounter].id).child('Volume').update({
+                stepSize: deviceAttributes.levelStepSize,
+                currentVolume: deviceAttributes.volumeDefaultPercentage
+            });
+        }
+        if (deviceitems[devicecounter].traits.includes('action.devices.traits.InputSelector')) {
+            var availableInputs = deviceitems[devicecounter].attributes.availableInputs;
+            firebaseRef.child(deviceitems[devicecounter].id).child('InputSelector').update({
+                availableInputs: availableInputs,
+                currentInput: availableInputs[0]['key']
+            });
+
         }
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.ColorSetting')) {
             firebaseRef.child(deviceitems[devicecounter].id).child('ColorSetting').set({
@@ -149,10 +168,23 @@ const queryFirebase = async (deviceId) => {
     if (Object.prototype.hasOwnProperty.call(snapshotVal, 'OnOff')) {
         asyncvalue = Object.assign(asyncvalue, {on: snapshotVal.OnOff.on});
     }
+    if (Object.prototype.hasOwnProperty.call(snapshotVal, 'InputSelector')) {
+        asyncvalue = Object.assign(asyncvalue, {
+            currentInput: snapshotVal.InputSelector.currentInput,
+            availableInputs: snapshotVal.InputSelector.availableInputs
+        });
+    }
     if (Object.prototype.hasOwnProperty.call(snapshotVal, 'Volume')) {
         asyncvalue = Object.assign(asyncvalue, {
             currentVolume: snapshotVal.Volume.currentVolume,
             isMuted: snapshotVal.Volume.isMuted
+        });
+    }
+    if (Object.prototype.hasOwnProperty.call(snapshotVal, 'StartStop')) {
+        asyncvalue = Object.assign(asyncvalue, {
+            activeZones: snapshotVal.StartStop.activeZones,
+            isRunning: snapshotVal.StartStop.isRunning,
+            availableZones: snapshotVal.StartStop.availableZones
         });
     }
     if (Object.prototype.hasOwnProperty.call(snapshotVal, 'Timer')) {
@@ -210,11 +242,18 @@ const queryDevice = async (deviceId) => {
     if (Object.prototype.hasOwnProperty.call(data, 'on')) {
         datavalue = Object.assign(datavalue, {on: data.on});
     }
+    if (Object.prototype.hasOwnProperty.call(data, 'currentInput')) {
+        datavalue = Object.assign(datavalue, {currentInput: data.currentInput});
+    }
+    if (Object.prototype.hasOwnProperty.call(data, 'availableInputs')) {
+        datavalue = Object.assign(datavalue, {availableInputs: data.availableInputs});
+    }
     if (Object.prototype.hasOwnProperty.call(data, 'isRunning')) {
         datavalue = Object.assign(datavalue, {isRunning: data.isRunning});
     }
     if (Object.prototype.hasOwnProperty.call(data, 'currentVolume')) {
         datavalue = Object.assign(datavalue, {currentVolume: data.currentVolume});
+        console.log('Current volume: ' + data.currentVolume)
     }
     if (Object.prototype.hasOwnProperty.call(data, 'isMuted')) {
         datavalue = Object.assign(datavalue, {isMuted: data.isMuted});
@@ -299,11 +338,17 @@ const updateDevice = async (execution, deviceId) => {
     switch (command) {
         case 'action.devices.commands.StartStop':
             state = {isRunning: params.start};
+            if (params.zone != undefined)
+                state['activeZones'] = params.zone;
             ref = firebaseRef.child(deviceId).child('StartStop');
             break;
         case 'action.devices.commands.TimerStart':
             state = {timerTimeSec: params.timerTimeSec};
             ref = firebaseRef.child(deviceId).child('Timer');
+            break;
+        case 'action.devices.commands.SetInput':
+            state = {currentInput: params.newInput};
+            ref = firebaseRef.child(deviceId).child('InputSelector');
             break;
         case 'action.devices.commands.TimerAdjust':
             state = {timerTimeSec: params.timerTimeSec};
@@ -316,24 +361,26 @@ const updateDevice = async (execution, deviceId) => {
         case 'action.devices.commands.volumeRelative':
             ref = firebaseRef.child(deviceId).child('Volume');
             var currentVol = null;
-            ref.child('currentVolume').on("value", function(snapshot) {
-                console.log(snapshot.val() + " Gavin was here.");
+            ref.child('currentVolume').on("value", function (snapshot) {
                 currentVol = snapshot.val();
             }, function (errorObject) {
                 console.log("The read failed: " + errorObject.code);
             });
             var steps = null;
-            ref.child('levelStepSize').on("value", function(snapshot) {
-                console.log(snapshot.val() + " steps");
+            ref.child('levelStepSize').on("value", function (snapshot) {
                 steps = snapshot.val();
             }, function (errorObject) {
                 console.log("The read failed: " + errorObject.code);
             });
-            var newVol = currentVol + (params.relativeSteps * steps);
-            if(newVol <= 0)
-                state = currentVol{currentVolume: 0};
+            var volStep = (params.relativeSteps * steps);
+            console.log("volStep: " + volStep)
+            if (volStep <= 0 && params.relativeSteps > 0)
+                volStep = 5
+            var newVol = currentVol + volStep;
+            if (newVol <= 0)
+                state = {currentVolume: 0};
             else
-                state = {currentVolume: newVol};
+                state = {currentVolume: newVol, isMuted: false};
             break;
         case 'action.devices.commands.mute':
             state = {isMuted: params.mute};
@@ -468,12 +515,10 @@ exports.reportstate = functions.database.ref('{deviceId}').onWrite(async (change
         syncvalue = Object.assign(syncvalue, {brightness: snapshot.Brightness.brightness});
     }
     if (Object.prototype.hasOwnProperty.call(snapshot, 'Volume')) {
-        if (Object.prototype.hasOwnProperty.call(snapshot.Volume, 'currentVolume')) {
-            syncvalue = Object.assign(syncvalue, {color: snapshot.Volume.currentVolume});
-        }
-        if (Object.prototype.hasOwnProperty.call(snapshot.Volume, 'isMuted')) {
-            syncvalue = Object.assign(syncvalue, {color: snapshot.Volume.isMuted});
-        }
+        syncvalue = Object.assign(syncvalue, {currentVolume: snapshot.Volume.currentVolume});
+        syncvalue = Object.assign(syncvalue, {isMuted: snapshot.Volume.isMuted});
+        console.log("currentVolume snapshot: " + snapshot.Volume.currentVolume);
+        console.log("isMuted snapshot: " + snapshot.Volume.isMuted);
     }
     if (Object.prototype.hasOwnProperty.call(snapshot, 'FanSpeed')) {
         if (Object.prototype.hasOwnProperty.call(snapshot.FanSpeed, 'currentFanSpeedSetting')) {
