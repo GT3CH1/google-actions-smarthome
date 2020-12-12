@@ -3,7 +3,8 @@
     "id": "1",
     "type": "action.devices.types.LIGHT",
     "traits": [
-      "action.devices.traits.OnOff"
+      "action.devices.traits.OnOff",
+      "action.devices.traits.Brightness"
     ],
     "name": {
       "defaultNames": [
@@ -291,7 +292,10 @@
     "traits": [
       "action.devices.traits.Volume",
       "action.devices.traits.OnOff",
-      "action.devices.traits.InputSelector"
+      "action.devices.traits.InputSelector",
+      "action.devices.traits.AppSelector",
+      "action.devices.traits.MediaState",
+      "action.devices.traits.TransportControl"
     ],
     "name": {
       "defaultNames": [
@@ -312,10 +316,12 @@
     "attributes": {
       "volumeMaxLevel": 100,
       "volumeCanMuteAndUnmute": true,
+      "volumeDefaultPercentage": 20,
       "levelStepSize": 5,
       "commandOnlyVolume": false,
-      "volumeDefaultPercentage": 15,
 	  "commandOnlyOnOff": false,
+      "availableApplications": [],
+      "transportControlSupportedCommands": [],
       "availableInputs": [
         {
           "key": "hdmi_1",
