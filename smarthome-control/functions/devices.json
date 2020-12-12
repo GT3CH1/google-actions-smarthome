@@ -290,20 +290,21 @@
     "type": "action.devices.types.TV",
     "traits": [
       "action.devices.traits.Volume",
-      "action.devices.traits.OnOff"
+      "action.devices.traits.OnOff",
+      "action.devices.traits.InputSelector"
     ],
     "name": {
       "defaultNames": [
-        "PiMation Sprinkler System"
+        "Upstairs TV"
       ],
       "name": "Upstairs TV",
       "nicknames": [
-        "Zone 10"
+        "Upstairs TV"
       ]
     },
     "deviceInfo": {
-        "manufacturer": "GTECH",
-        "model": "PiMation",
+        "manufacturer": "LG",
+        "model": "WebOSTV",
         "hwVersion": "1.0",
         "swVersion": "2.0"
     },
@@ -313,8 +314,23 @@
       "volumeCanMuteAndUnmute": true,
       "levelStepSize": 5,
       "commandOnlyVolume": false,
-      "volumeDefaultPercentage": 3,
-	  "commandOnlyOnOff": false
+      "volumeDefaultPercentage": 15,
+	  "commandOnlyOnOff": false,
+      "availableInputs": [
+        {
+          "key": "hdmi_1",
+          "names": [
+            {
+              "lang": "en",
+              "name_synonym": [
+                "hdmi 1",
+                "1st hdmi",
+                "DVD player"
+              ]
+            }
+          ]
+        }
+      ]
     }
   }
 ]
