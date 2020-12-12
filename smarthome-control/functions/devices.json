@@ -312,7 +312,7 @@
         "hwVersion": "1.0",
         "swVersion": "2.0"
     },
-    "willReportState": true,
+    "willReportState": false,
     "attributes": {
       "volumeMaxLevel": 100,
       "volumeCanMuteAndUnmute": true,
@@ -336,6 +336,36 @@
             }
           ]
         }
+      ]
+    }
+  },
+  {
+    "id": "garage-door",
+    "type": "action.devices.types.GARAGE",
+    "traits": [
+      "action.devices.traits.OpenClose"
+    ],
+    "name": {
+      "defaultNames": [
+        "PiMation Garage Door"
+      ],
+      "name": "Garage Door",
+      "nicknames": [
+        "Garage"
+      ]
+    },
+    "deviceInfo": {
+      "manufacturer": "GTECH",
+      "model": "PiMation",
+      "hwVersion": "1.0",
+      "swVersion": "2.0"
+    },
+    "willReportState": true,
+    "attributes": {
+      "discreteOnlyOpenClose": true,
+      "openDirection": [
+        "UP",
+        "DOWN"
       ]
     }
   }
