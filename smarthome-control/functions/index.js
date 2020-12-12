@@ -143,7 +143,7 @@ const queryDevice = async (deviceId) => {
     const data = await queryFirebase(deviceId);
     /* device states */
     var datavalue = {};
-
+    print("Data: " + data)
     if (Object.prototype.hasOwnProperty.call(data, 'on')) {
         datavalue = Object.assign(datavalue, {on: data.on});
     }
@@ -264,7 +264,14 @@ app.onExecute(async (body) => {
                             result.ids.push(device.id);
                             Object.assign(result.states, data);
                         })
-                        .catch(() => console.error(`Unable to update ${device.id}`))
+                        .catch((error) => {
+                                    functions.logger.error('EXECUTE', device.id, error);
+                                    result.ids.push(device.id);
+                                    if(error instanceof SmartHomeError) {
+                                      result.status = 'ERROR';
+                                      result.errorCode = error.errorCode;
+                                    }
+                                  })
                 );
             }
         }
@@ -336,3 +343,12 @@ exports.reportstate = functions.database.ref('{deviceId}').onWrite(async (change
     console.log('Report state came back');
     console.info(data);
 });
+
+
+class SmartHomeError extends Error {
+  constructor(errorCode, message) {
+    super(message);
+    this.name = this.constructor.name;
+    this.errorCode = errorCode;
+  }
+}

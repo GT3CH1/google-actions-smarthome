@@ -3,8 +3,7 @@
     "id": "1",
     "type": "action.devices.types.LIGHT",
     "traits": [
-      "action.devices.traits.OnOff",
-      "action.devices.traits.Brightness"
+      "action.devices.traits.OnOff"
     ],
     "name": {
       "defaultNames": [
