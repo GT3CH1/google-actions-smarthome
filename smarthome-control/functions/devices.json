@@ -314,10 +314,7 @@
     "willReportState": true,
     "attributes": {
       "volumeMaxLevel": 99,
-      "volumeCanMuteAndUnmute": false,
-      "volumeDefaultPercentage": 20,
-      "levelStepSize": 5,
-      "commandOnlyVolume": false,
+      "volumeCanMuteAndUnmute": true,
 	  "commandOnlyOnOff": false,
       "availableApplications": [],
       "transportControlSupportedCommands": [],
@@ -363,6 +360,8 @@
     "willReportState": true,
     "attributes": {
       "discreteOnlyOpenClose": true,
+      "queryOnlyOpenClose": false,
+      "commandOnlyOpenClose": false,
       "openDirection": [
         "UP",
         "DOWN"

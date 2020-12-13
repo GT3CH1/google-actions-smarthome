@@ -17,6 +17,7 @@
 'use strict';
 
 const functions = require('firebase-functions');
+require('firebase-functions/lib/logger/compat');
 const {smarthome} = require('actions-on-google');
 const util = require('util');
 const admin = require('firebase-admin');
@@ -28,7 +29,6 @@ exports.fakeauth = functions.https.onRequest((request, response) => {
     const responseurl = util.format('%s?code=%s&state=%s',
         decodeURIComponent(request.query.redirect_uri), 'xxxxxx',
         request.query.state);
-    console.log(responseurl);
     return response.redirect(responseurl);
 });
 
@@ -91,10 +91,16 @@ app.onSync((body) => {
         }
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.Volume')) {
             var deviceAttributes = deviceitems[devicecounter].attributes;
-            firebaseRef.child(deviceitems[devicecounter].id).child('Volume').update({
-                currentVolume: 20,
-                isMuted: false
-            });
+            if(firebaseRef.child(deviceitems[devicecounter].id).child('Volume').child('currenntVolume') == undefined){
+                 firebaseRef.child(deviceitems[devicecounter].id).child('Volume').update({
+                     currentVolume: 20
+                 });
+            }
+            if(firebaseRef.child(deviceitems[devicecounter].id).child('Volume').child('isMuted') == undefined){
+                firebaseRef.child(deviceitems[devicecounter].id).child('Volume').update({
+                    isMuted: false
+                });
+            }
         }
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.InputSelector')) {
             var availableInputs = deviceitems[devicecounter].attributes.availableInputs;
@@ -127,7 +133,7 @@ const queryFirebase = async (deviceId) => {
         asyncvalue = Object.assign(asyncvalue, {on: snapshotVal.OnOff.on});
     }
     if (Object.prototype.hasOwnProperty.call(snapshotVal, 'OpenClose')) {
-        asyncvalue = Object.assign(asyncvalue, {on: snapshotVal.OpenClose.openPercent});
+        asyncvalue = Object.assign(asyncvalue, {openPercent: snapshotVal.OpenClose.openPercent});
     }
     if (Object.prototype.hasOwnProperty.call(snapshotVal, 'InputSelector')) {
         if(Object.prototype.hasOwnProperty.call(snapshotVal.InputSelector, 'currentInput')){
@@ -178,6 +184,7 @@ const queryDevice = async (deviceId) => {
     if(Object.prototype.hasOwnProperty.call(data, 'isMuted')){
         datavalue = Object.assign(datavalue, {isMuted: data.isMuted} );
     }
+    console.log("Final query from device deviceID " + deviceId  + " -> " + JSON.stringify(datavalue));
     return datavalue;
 }
 
@@ -223,22 +230,6 @@ const updateDevice = async (execution, deviceId) => {
         case 'action.devices.commands.mute':
             state = {isMuted: params.mute};
             ref = firebaseRef.child(deviceId).child('Volume');
-            break;
-        case 'action.devices.commands.volumeRelative':
-            ref = firebaseRef.child(deviceId).child('Volume');
-            var currentVol = null;
-            ref.child('currentVolume').on("value", function (snapshot) {
-                currentVol = snapshot.val();
-            }, function (errorObject) {
-                console.log("The read failed: " + errorObject.code);
-            });
-            var volStep = params.relativeSteps * 5;
-            var newVol = currentVol + volStep;
-            console.log("New volume is: " + newVol)
-            if (newVol <= 0)
-                state = {currentVolume: 0};
-            else
-                state = {currentVolume: newVol};
             break;
         case 'action.devices.commands.OnOff':
             state = {on: params.on};
@@ -345,7 +336,7 @@ exports.reportstate = functions.database.ref('{deviceId}').onWrite(async (change
         syncvalue = Object.assign(syncvalue, {brightness: snapshot.Brightness.brightness});
     }
     if (Object.prototype.hasOwnProperty.call(snapshot, 'Volume')) {
-        syncvalue = Object.assign(syncvalue, {currentVolume: snapshot.Volume.currentVolume});
+        syncvalue = Object.assign(syncvalue, {currentVolume: snapshot.Volume.currentVolume, isMuted: snapshot.Volume.isMuted});
     }
     const postData = {
         requestId: 'gtechtest', /* Any unique ID */
@@ -353,14 +344,12 @@ exports.reportstate = functions.database.ref('{deviceId}').onWrite(async (change
         payload: {
             devices: {
                 states: {
-                    [context.params.deviceId]: syncvalue,
+                    [context.params.deviceId]: syncvalue
                 }
             }
         }
     }
     const data = await app.reportState(postData);
-    console.log('Report state came back');
-    console.info(data);
 });
 
 
