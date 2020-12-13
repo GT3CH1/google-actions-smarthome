@@ -291,10 +291,7 @@
     "traits": [
       "action.devices.traits.Volume",
       "action.devices.traits.OnOff",
-      "action.devices.traits.InputSelector",
-      "action.devices.traits.AppSelector",
-      "action.devices.traits.MediaState",
-      "action.devices.traits.TransportControl"
+      "action.devices.traits.InputSelector"
     ],
     "name": {
       "defaultNames": [
