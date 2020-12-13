@@ -316,8 +316,8 @@
       "volumeMaxLevel": 99,
       "volumeCanMuteAndUnmute": true,
 	  "commandOnlyOnOff": false,
-      "availableApplications": [],
-      "transportControlSupportedCommands": [],
+      "availableApplications": ["none"],
+      "transportControlSupportedCommands": ["none"],
       "availableInputs": [
         {
           "key": "hdmi_1",
