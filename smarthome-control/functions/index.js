@@ -81,7 +81,13 @@ app.onSync((body) => {
     console.log('onSync');
     for (devicecounter = 0; devicecounter < deviceitems.length; devicecounter++) {
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.OnOff')) {
-            firebaseRef.child(deviceitems[devicecounter].id).child('OnOff').update({on: false});
+            if(firebaseRef.child(deviceitems[devicecounter].id).child('OnOff').child('on') == undefined){
+                firebaseRef.child(deviceitems[devicecounter].id).child('OnOff').update({on: false});
+            }
+           
+        }
+        if(deviceitems[devicecounter].traits.includes('action.devices.traits.Reboot')){
+            firebaseRef.child(deviceitems[devicecounter].id).child('RebootNow').update({reboot: false});
         }
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.Brightness')) {
             firebaseRef.child(deviceitems[devicecounter].id).child('Brightness').update({brightness: 10});
@@ -91,7 +97,7 @@ app.onSync((body) => {
         }
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.Volume')) {
             var deviceAttributes = deviceitems[devicecounter].attributes;
-            if(firebaseRef.child(deviceitems[devicecounter].id).child('Volume').child('currenntVolume') == undefined){
+            if(firebaseRef.child(deviceitems[devicecounter].id).child('Volume').child('currentVolume') == undefined){
                  firebaseRef.child(deviceitems[devicecounter].id).child('Volume').update({
                      currentVolume: 20
                  });
@@ -145,7 +151,7 @@ const queryFirebase = async (deviceId) => {
     }
     if (Object.prototype.hasOwnProperty.call(snapshotVal, 'Volume')) {
         if(Object.prototype.hasOwnProperty.call(snapshotVal.Volume, 'currentVolume')) {
-            asyncvalue = Object.assign(asyncvalue, {currentVolume: snapshotVal.Volume.currentVolume});
+            asyncvalue = Object.assign(asyncvalue, {currentVolume: snapshotVal.Volume.currentVolume, volume: snapshotVal.Volume.currentVolume});
         }
         if(Object.prototype.hasOwnProperty.call(snapshotVal.Volume, 'isMuted')) {
             asyncvalue = Object.assign(asyncvalue, {isMuted: snapshotVal.Volume.isMuted});
@@ -234,6 +240,10 @@ const updateDevice = async (execution, deviceId) => {
         case 'action.devices.commands.OnOff':
             state = {on: params.on};
             ref = firebaseRef.child(deviceId).child('OnOff');
+            break;
+        case 'action.devices.commands.Reboot':
+            state = {reboot: true};
+            ref = firebaseRef.child(deviceId).child('RebootNow')
             break;
         case 'action.devices.commands.OpenClose':
             var currentOpenClose;

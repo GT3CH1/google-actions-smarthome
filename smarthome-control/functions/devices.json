@@ -367,5 +367,51 @@
         "DOWN"
       ]
     }
+  },
+  {
+    "id": "rtr1",
+    "type": "action.devices.types.ROUTER",
+    "traits": [
+      "action.devices.traits.Reboot"
+    ],
+    "name": {
+      "defaultNames": [
+        "Asus RT-AC66U"
+      ],
+      "name": "Basement Router",
+      "nicknames": [
+        "Basement Router"
+      ]
+    },
+    "deviceInfo": {
+      "manufacturer": "Asus",
+      "model": "RT-AC66U",
+      "hwVersion": "1.0",
+      "swVersion": "Tomato"
+    },
+    "willReportState": true
+  },
+  {
+    "id": "rtr2",
+    "type": "action.devices.types.ROUTER",
+    "traits": [
+      "action.devices.traits.Reboot"
+    ],
+    "name": {
+      "defaultNames": [
+        "Asus RT-N66W"
+      ],
+      "name": "Upstairs Router",
+      "nicknames": [
+        "Upstairs Router"
+      ]
+    },
+    "deviceInfo": {
+      "manufacturer": "Asus",
+      "model": "RT-N66W",
+      "hwVersion": "1.0",
+      "swVersion": "Tomato"
+    },
+    "willReportState": true
   }
 ]
