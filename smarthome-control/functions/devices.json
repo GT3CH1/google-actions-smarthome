@@ -303,18 +303,16 @@
       ]
     },
     "deviceInfo": {
-        "manufacturer": "LG",
-        "model": "WebOSTV",
-        "hwVersion": "1.0",
-        "swVersion": "2.0"
+      "manufacturer": "LG",
+      "model": "WebOSTV",
+      "hwVersion": "1.0",
+      "swVersion": "2.0"
     },
     "willReportState": true,
     "attributes": {
       "volumeMaxLevel": 99,
       "volumeCanMuteAndUnmute": true,
-	  "commandOnlyOnOff": false,
-      "availableApplications": ["none"],
-      "transportControlSupportedCommands": ["none"],
+      "commandOnlyOnOff": false,
       "availableInputs": [
         {
           "key": "hdmi_1",

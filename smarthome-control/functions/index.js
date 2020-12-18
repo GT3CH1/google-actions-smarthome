@@ -84,7 +84,6 @@ app.onSync((body) => {
             if(firebaseRef.child(deviceitems[devicecounter].id).child('OnOff').child('on') == undefined){
                 firebaseRef.child(deviceitems[devicecounter].id).child('OnOff').update({on: false});
             }
-           
         }
         if(deviceitems[devicecounter].traits.includes('action.devices.traits.Reboot')){
             firebaseRef.child(deviceitems[devicecounter].id).child('RebootNow').update({reboot: false});
@@ -93,7 +92,7 @@ app.onSync((body) => {
             firebaseRef.child(deviceitems[devicecounter].id).child('Brightness').update({brightness: 10});
         }
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.OpenClose')) {
-            firebaseRef.child(deviceitems[devicecounter].id).child('OpenClose').update({openPercent: 0});
+            firebaseRef.child(deviceitems[devicecounter].id).child('OpenClose').update({openPercent: 0, remote: false});
         }
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.Volume')) {
             var deviceAttributes = deviceitems[devicecounter].attributes;
@@ -255,7 +254,7 @@ const updateDevice = async (execution, deviceId) => {
             });
             var newState;
             newState = (currentOpenClose == 100 ) ? 0 : 100;
-            state = {openPercent: newState};
+            state = {openPercent: newState, remote: true};
             break;
         default:
             break;
