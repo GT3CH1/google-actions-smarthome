@@ -22,7 +22,7 @@
     },
     "willReportState": false,
     "attributes": {
-      "commandOnlyOnOff": false
+      "commandOnlyOnOff": true
     }
   },
   {
@@ -132,30 +132,6 @@
       "model": "RT-N66W",
       "hwVersion": "1.0",
       "swVersion": "Tomato"
-    },
-    "willReportState": true
-  },
-  {
-    "id": "subaru",
-    "type": "action.devices.types.SWITCH",
-    "traits": [
-      "action.devices.traits.OnOff"
-    ],
-    "name": {
-      "defaultNames": [
-        "Subaru"
-      ],
-      "name": "Subaru",
-      "nicknames": [
-        "Subaru",
-        "My Subaru"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "Subaru",
-      "model": "Crosstrek XV",
-      "hwVersion": "2013",
-      "swVersion": "GTECH"
     },
     "willReportState": true
   },
