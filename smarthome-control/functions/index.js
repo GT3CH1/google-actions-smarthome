@@ -82,7 +82,7 @@ app.onSync((body) => {
     for (devicecounter = 0; devicecounter < deviceitems.length; devicecounter++) {
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.OnOff')) {
             if(firebaseRef.child(deviceitems[devicecounter].id).child('OnOff').child('on') == undefined){
-                firebaseRef.child(deviceitems[devicecounter].id).child('OnOff').update({on: false});
+                firebaseRef.child(deviceitems[devicecounter].id).child('OnOff').update({on: false,remote: false});
             }
         }
         if(deviceitems[devicecounter].traits.includes('action.devices.traits.Reboot')){
@@ -96,6 +96,7 @@ app.onSync((body) => {
         }
         if (deviceitems[devicecounter].traits.includes('action.devices.traits.Volume')) {
             var deviceAttributes = deviceitems[devicecounter].attributes;
+            deviceAttributes = Object.assign(deviceAttributes, {currentVolume: 10, remote: false});
             if(firebaseRef.child(deviceitems[devicecounter].id).child('Volume').child('currentVolume') == undefined){
                  firebaseRef.child(deviceitems[devicecounter].id).child('Volume').update({
                      currentVolume: 20
@@ -150,7 +151,7 @@ const queryFirebase = async (deviceId) => {
     }
     if (Object.prototype.hasOwnProperty.call(snapshotVal, 'Volume')) {
         if(Object.prototype.hasOwnProperty.call(snapshotVal.Volume, 'currentVolume')) {
-            asyncvalue = Object.assign(asyncvalue, {currentVolume: snapshotVal.Volume.currentVolume, volume: snapshotVal.Volume.currentVolume});
+            asyncvalue = Object.assign(asyncvalue, {currentVolume: snapshotVal.Volume.currentVolume, volumeLevel: snapshotVal.Volume.currentVolume});
         }
         if(Object.prototype.hasOwnProperty.call(snapshotVal.Volume, 'isMuted')) {
             asyncvalue = Object.assign(asyncvalue, {isMuted: snapshotVal.Volume.isMuted});
@@ -229,15 +230,31 @@ const updateDevice = async (execution, deviceId) => {
             ref = firebaseRef.child(deviceId).child('InputSelector');
             break;
         case 'action.devices.commands.setVolume':
-            state = {currentVolume: params.volumeLevel};
+            state = {currentVolume: params.volumeLevel,remote:true};
             ref = firebaseRef.child(deviceId).child('Volume');
             break;
         case 'action.devices.commands.mute':
-            state = {isMuted: params.mute};
+            state = {isMuted: params.mute,remote:true};
             ref = firebaseRef.child(deviceId).child('Volume');
             break;
+        case 'action.devices.commands.volumeRelative':
+            ref = firebaseRef.child(deviceId).child('Volume');
+            var currentVol = null;
+            ref.child('currentVolume').on("value", function (snapshot) {
+                currentVol = snapshot.val();
+            }, function (errorObject) {
+                console.log("The read failed: " + errorObject.code);
+            });
+            var volStep = params.relativeSteps * 2;
+            var newVol = currentVol + volStep;
+            console.log("New volume is: " + newVol)
+            if (newVol <= 0)
+                state = {currentVolume: 0,remote: true};
+            else
+                state = {currentVolume: newVol,remote:true};
+            break;                  
         case 'action.devices.commands.OnOff':
-            state = {on: params.on};
+            state = {on: params.on,remote: true};
             ref = firebaseRef.child(deviceId).child('OnOff');
             break;
         case 'action.devices.commands.Reboot':

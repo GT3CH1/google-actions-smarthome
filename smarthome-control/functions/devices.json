@@ -1,6 +1,6 @@
 ﻿[
   {
-    "id": "1",
+    "id": "outside-lights",
     "type": "action.devices.types.LIGHT",
     "traits": [
       "action.devices.traits.OnOff"
@@ -16,7 +16,7 @@
     },
     "deviceInfo": {
       "manufacturer": "GTECH",
-      "model": "LightPi",
+      "model": "Arduino Nano 33 IOT",
       "hwVersion": "1.0",
       "swVersion": "1.3"
     },
@@ -26,272 +26,11 @@
     }
   },
   {
-    "id": "sprinkler-zone-1",
-    "type": "action.devices.types.SPRINKLER",
-    "traits": [
-      "action.devices.traits.OnOff"
-    ],
-    "name": {
-      "defaultNames": [
-        "PiMation Sprinkler System"
-      ],
-      "name": "Zone 1",
-      "nicknames": [
-        "Zone 1"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "GTECH",
-      "model": "PiMation",
-      "hwVersion": "1.0",
-      "swVersion": "2.0"
-    },
-    "willReportState": true,
-    "attributes": {
-      "commandOnlyOnOff": false
-    }
-  },
-  {
-    "id": "sprinkler-zone-2",
-    "type": "action.devices.types.SPRINKLER",
-    "traits": [
-      "action.devices.traits.OnOff"
-    ],
-    "name": {
-      "defaultNames": [
-        "PiMation Sprinkler System"
-      ],
-      "name": "Zone 2",
-      "nicknames": [
-        "Zone 2"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "GTECH",
-      "model": "PiMation",
-      "hwVersion": "1.0",
-      "swVersion": "2.0"
-    },
-    "willReportState": true,
-    "attributes": {
-      "commandOnlyOnOff": false
-    }
-  },
-  {
-    "id": "sprinkler-zone-3",
-    "type": "action.devices.types.SPRINKLER",
-    "traits": [
-      "action.devices.traits.OnOff"
-    ],
-    "name": {
-      "defaultNames": [
-        "PiMation Sprinkler System"
-      ],
-      "name": "Zone 3",
-      "nicknames": [
-        "Zone 3"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "GTECH",
-      "model": "PiMation",
-      "hwVersion": "1.0",
-      "swVersion": "2.0"
-    },
-    "willReportState": true,
-    "attributes": {
-      "commandOnlyOnOff": false
-    }
-  },
-  {
-    "id": "sprinkler-zone-4",
-    "type": "action.devices.types.SPRINKLER",
-    "traits": [
-      "action.devices.traits.OnOff"
-    ],
-    "name": {
-      "defaultNames": [
-        "PiMation Sprinkler System"
-      ],
-      "name": "Zone 4",
-      "nicknames": [
-        "Zone 4"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "GTECH",
-      "model": "PiMation",
-      "hwVersion": "1.0",
-      "swVersion": "2.0"
-    },
-    "willReportState": true,
-    "attributes": {
-      "commandOnlyOnOff": false
-    }
-  },
-  {
-    "id": "sprinkler-zone-5",
-    "type": "action.devices.types.SPRINKLER",
-    "traits": [
-      "action.devices.traits.OnOff"
-    ],
-    "name": {
-      "defaultNames": [
-        "PiMation Sprinkler System"
-      ],
-      "name": "Zone 5",
-      "nicknames": [
-        "Zone 5"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "GTECH",
-      "model": "PiMation",
-      "hwVersion": "1.0",
-      "swVersion": "2.0"
-    },
-    "willReportState": true,
-    "attributes": {
-      "commandOnlyOnOff": false
-    }
-  },
-  {
-    "id": "sprinkler-zone-6",
-    "type": "action.devices.types.SPRINKLER",
-    "traits": [
-      "action.devices.traits.OnOff"
-    ],
-    "name": {
-      "defaultNames": [
-        "PiMation Sprinkler System"
-      ],
-      "name": "Zone 6",
-      "nicknames": [
-        "Zone 6"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "GTECH",
-      "model": "PiMation",
-      "hwVersion": "1.0",
-      "swVersion": "2.0"
-    },
-    "willReportState": true,
-    "attributes": {
-      "commandOnlyOnOff": false
-    }
-  },
-  {
-    "id": "sprinkler-zone-7",
-    "type": "action.devices.types.SPRINKLER",
-    "traits": [
-      "action.devices.traits.OnOff"
-    ],
-    "name": {
-      "defaultNames": [
-        "PiMation Sprinkler System"
-      ],
-      "name": "Zone 7",
-      "nicknames": [
-        "Zone 7"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "GTECH",
-      "model": "PiMation",
-      "hwVersion": "1.0",
-      "swVersion": "2.0"
-    },
-    "willReportState": true,
-    "attributes": {
-      "commandOnlyOnOff": false
-    }
-  },
-  {
-    "id": "sprinkler-zone-8",
-    "type": "action.devices.types.SPRINKLER",
-    "traits": [
-      "action.devices.traits.OnOff"
-    ],
-    "name": {
-      "defaultNames": [
-        "PiMation Sprinkler System"
-      ],
-      "name": "Zone 8",
-      "nicknames": [
-        "Zone 8"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "GTECH",
-      "model": "PiMation",
-      "hwVersion": "1.0",
-      "swVersion": "2.0"
-    },
-    "willReportState": true,
-    "attributes": {
-      "commandOnlyOnOff": false
-    }
-  },
-  {
-    "id": "sprinkler-zone-9",
-    "type": "action.devices.types.SPRINKLER",
-    "traits": [
-      "action.devices.traits.OnOff"
-    ],
-    "name": {
-      "defaultNames": [
-        "PiMation Sprinkler System"
-      ],
-      "name": "Zone 9",
-      "nicknames": [
-        "Zone 9"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "GTECH",
-      "model": "PiMation",
-      "hwVersion": "1.0",
-      "swVersion": "2.0"
-    },
-    "willReportState": true,
-    "attributes": {
-      "commandOnlyOnOff": false
-    }
-  },
-  {
-    "id": "sprinkler-zone-10",
-    "type": "action.devices.types.SPRINKLER",
-    "traits": [
-      "action.devices.traits.OnOff"
-    ],
-    "name": {
-      "defaultNames": [
-        "PiMation Sprinkler System"
-      ],
-      "name": "Zone 10",
-      "nicknames": [
-        "Zone 10"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "GTECH",
-      "model": "PiMation",
-      "hwVersion": "1.0",
-      "swVersion": "2.0"
-    },
-    "willReportState": true,
-    "attributes": {
-      "commandOnlyOnOff": false
-    }
-  },
-  {
     "id": "upstairs-tv",
     "type": "action.devices.types.TV",
     "traits": [
       "action.devices.traits.Volume",
-      "action.devices.traits.OnOff",
-      "action.devices.traits.InputSelector"
+      "action.devices.traits.OnOff"
     ],
     "name": {
       "defaultNames": [
@@ -308,26 +47,13 @@
       "hwVersion": "1.0",
       "swVersion": "2.0"
     },
+    "online": true,
     "willReportState": true,
     "attributes": {
-      "volumeMaxLevel": 99,
+      "volumeMaxLevel": 100,
+      "volumeDefaultPercentage": 10,
       "volumeCanMuteAndUnmute": true,
-      "commandOnlyOnOff": false,
-      "availableInputs": [
-        {
-          "key": "hdmi_1",
-          "names": [
-            {
-              "lang": "en",
-              "name_synonym": [
-                "hdmi 1",
-                "1st hdmi",
-                "DVD player"
-              ]
-            }
-          ]
-        }
-      ]
+      "commandOnlyOnOff": false 
     }
   },
   {
@@ -408,5 +134,82 @@
       "swVersion": "Tomato"
     },
     "willReportState": true
+  },
+  {
+    "id": "subaru",
+    "type": "action.devices.types.SWITCH",
+    "traits": [
+      "action.devices.traits.OnOff"
+    ],
+    "name": {
+      "defaultNames": [
+        "Subaru"
+      ],
+      "name": "Subaru",
+      "nicknames": [
+        "Subaru",
+        "My Subaru"
+      ]
+    },
+    "deviceInfo": {
+      "manufacturer": "Subaru",
+      "model": "Crosstrek XV",
+      "hwVersion": "2013",
+      "swVersion": "GTECH"
+    },
+    "willReportState": true
+  },
+  {
+    "id": "fishtank-pump",
+    "type": "action.devices.types.SWITCH",
+    "traits": [
+      "action.devices.traits.OnOff"
+    ],
+    "name": {
+      "defaultNames": [
+        "Fish Tank Filter"
+      ],
+      "name": "Fish Tank Filter",
+      "nicknames": [
+        "Fish Tank Pump",
+        "Fish Tank Filter"
+      ]
+    },
+    "deviceInfo": {
+      "manufacturer": "GTECH",
+      "model": "Arduino Nano 33 IOT",
+      "hwVersion": "1.0",
+      "swVersion": "1.0"
+    },
+    "willReportState": false,
+    "attributes": {
+      "commandOnlyOnOff": false
+    }
+  },
+  {
+    "id": "fishtank-light",
+    "type": "action.devices.types.LIGHT",
+    "traits": [
+      "action.devices.traits.OnOff"
+    ],
+    "name": {
+      "defaultNames": [
+        "Fish Tank Lighting"
+      ],
+      "name": "Fish Tank Light",
+      "nicknames": [
+        "Fish Tank Light"
+      ]
+    },
+    "deviceInfo": {
+      "manufacturer": "GTECH",
+      "model": "Arduino Nano 33 IOT",
+      "hwVersion": "1.0",
+      "swVersion": "1.0"
+    },
+    "willReportState": false,
+    "attributes": {
+      "commandOnlyOnOff": false
+    }
   }
 ]
