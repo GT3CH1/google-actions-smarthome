@@ -60,7 +60,7 @@ exports.faketoken = functions.https.onRequest((request, response) => {
 
 let jwt
 try {
-    jwt = require('./smart-home-key.json')
+    jwt = require('./serviceAccountKey.json')
 } catch (e) {
     console.warn('Service account key is not found')
     console.warn('Report state and Request sync will be unavailable')
