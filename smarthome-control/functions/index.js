@@ -95,15 +95,15 @@ exports.faketoken = functions.https.onRequest((request, response) => {
 
 let jwt
 try {
-  jwt = require('./smart-home-key.json')
+    jwt = require('./serviceAccountKey.json')
 } catch (e) {
   functions.logger.warn('Service account key is not found')
   functions.logger.warn('Report state and Request sync will be unavailable')
 }
 
 const app = smarthome({
-  jwt: jwt,
-  debug: true,
+    jwt: jwt,
+    debug: true,
 })
 
 let devicelist
@@ -113,71 +113,86 @@ const deviceitems = JSON.parse(JSON.stringify(devicelist));
 var devicecounter;
 
 app.onSync((body) => {
-  functions.logger.log('onSync');
-  for (devicecounter = 0; devicecounter < deviceitems.length; devicecounter++) {
-    if (deviceitems[devicecounter].traits.includes('action.devices.traits.TemperatureSetting')) {
-      if (deviceitems[devicecounter].attributes.queryOnlyTemperatureSetting == true) {
-        firebaseRef.child(deviceitems[devicecounter].id).child('TemperatureSetting').set({thermostatMode: "off", thermostatTemperatureAmbient: 20, thermostatHumidityAmbient: 90});
-      } else if (deviceitems[devicecounter].attributes.queryOnlyTemperatureSetting == false) {
-        firebaseRef.child(deviceitems[devicecounter].id).child('TemperatureSetting').set({thermostatMode: "off", thermostatTemperatureSetpoint: 25.5, thermostatTemperatureAmbient: 20, thermostatHumidityAmbient: 90, thermostatTemperatureSetpointLow: 15, thermostatTemperatureSetpointHigh: 30});
-      }
+    console.log('onSync');
+    for (devicecounter = 0; devicecounter < deviceitems.length; devicecounter++) {
+      let currDevice = deviceitems[devicecounter];
+      if (currDevice.traits.includes('action.devices.traits.OnOff')) {
+            firebaseRef.child(currDevice.id).child('OnOff').update({on: false, remote: false});
+        }
+        if (currDevice.traits.includes('action.devices.traits.Reboot')) {
+            firebaseRef.child(currDevice.id).child('RebootNow').update({reboot: false});
+        }
+        if (currDevice.traits.includes('action.devices.traits.Brightness')) {
+            firebaseRef.child(currDevice.id).child('Brightness').update({brightness: 10});
+        }
+        if (currDevice.traits.includes('action.devices.traits.OpenClose')) {
+            firebaseRef.child(currDevice.id).child('OpenClose').update({openPercent: 0, remote: false});
+        }
+        if (currDevice.traits.includes('action.devices.traits.Volume')) {
+            var deviceAttributes = currDevice.attributes;
+            deviceAttributes = Object.assign(deviceAttributes, {currentVolume: 10, remote: false});
+            if (firebaseRef.child(currDevice.id).child('Volume').child('currentVolume') == undefined) {
+                firebaseRef.child(currDevice.id).child('Volume').update({
+                    currentVolume: 20
+                });
+            }
+            if (firebaseRef.child(currDevice.id).child('Volume').child('isMuted') == undefined) {
+                firebaseRef.child(currDevice.id).child('Volume').update({
+                    isMuted: false
+                });
+            }
+        }
+        if (currDevice.traits.includes('action.devices.traits.InputSelector')) {
+            var availableInputs = currDevice.attributes.availableInputs;
+            firebaseRef.child(currDevice.id).child('InputSelector').update({
+                availableInputs: availableInputs,
+                currentInput: availableInputs[0]['key']
+            });
+        }
     }
-    if (deviceitems[devicecounter].traits.includes('action.devices.traits.OnOff')) {
-      firebaseRef.child(deviceitems[devicecounter].id).child('OnOff').set({on: false});
-    }
-    if (deviceitems[devicecounter].traits.includes('action.devices.traits.Brightness')) {
-      firebaseRef.child(deviceitems[devicecounter].id).child('Brightness').set({brightness: 10});
-    }
-    if (deviceitems[devicecounter].traits.includes('action.devices.traits.ColorSetting')) {
-      firebaseRef.child(deviceitems[devicecounter].id).child('ColorSetting').set({color: {name: "deep sky blue", spectrumRGB: 49151}});
-    }
-    if (deviceitems[devicecounter].traits.includes('action.devices.traits.Modes')) {
-      var modename = deviceitems[devicecounter].attributes.availableModes[0].name
-      var modevalue = deviceitems[devicecounter].attributes.availableModes[0].settings[0].setting_name
-      firebaseRef.child(deviceitems[devicecounter].id).child('Modes').set({currentModeSettings: {modename: modevalue}});
-    }
-    if (deviceitems[devicecounter].traits.includes('action.devices.traits.FanSpeed')) {
-      firebaseRef.child(deviceitems[devicecounter].id).child('FanSpeed').set({currentFanSpeedSetting: 20.0});
-    }
-  }
-  return {
-    requestId: body.requestId,
-    payload: {
-      agentUserId: USER_ID,
-      devices: deviceitems
-    },
-  };
+    var data;
+    data = {
+        requestId: body.requestId,
+        payload: {
+            agentUserId: '123',
+            devices: deviceitems
+        },
+    };
+    console.log("JSON (onSync) " + JSON.stringify(data));
+    return data;
 });
 
 
 const queryFirebase = async (deviceId) => {
-  const snapshot = await firebaseRef.child(deviceId).once('value');
-  const snapshotVal = snapshot.val();
+    const snapshot = await firebaseRef.child(deviceId).once('value');
+    const snapshotVal = snapshot.val();
 
-  var asyncvalue = {};
+    var asyncvalue = {};
 
-  if (Object.prototype.hasOwnProperty.call(snapshotVal, 'OnOff')) {
-    asyncvalue = Object.assign(asyncvalue, {on: snapshotVal.OnOff.on});
-  }
-  if (Object.prototype.hasOwnProperty.call(snapshotVal, 'Brightness')) {
-    asyncvalue = Object.assign(asyncvalue, {brightness: snapshotVal.Brightness.brightness});
-  }
-  if (Object.prototype.hasOwnProperty.call(snapshotVal, 'ColorSetting')) {
-    asyncvalue = Object.assign(asyncvalue, {color: snapshotVal.ColorSetting.color});
-  }
-  if (Object.prototype.hasOwnProperty.call(snapshotVal, 'FanSpeed')) {
-    if (Object.prototype.hasOwnProperty.call(snapshotVal.FanSpeed, 'currentFanSpeedSetting')) {
-      asyncvalue = Object.assign(asyncvalue, {currentFanSpeedSetting: snapshotVal.FanSpeed.currentFanSpeedSetting});
+    if (Object.prototype.hasOwnProperty.call(snapshotVal, 'OnOff')) {
+        asyncvalue = Object.assign(asyncvalue, {on: snapshotVal.OnOff.on});
     }
-  }
-  if (Object.prototype.hasOwnProperty.call(snapshotVal, 'Modes')) {
-    if (Object.prototype.hasOwnProperty.call(snapshotVal.Modes, 'currentModeSettings')) {
-      asyncvalue = Object.assign(asyncvalue, {currentModeSettings: snapshotVal.Modes.currentModeSettings});
+    if (Object.prototype.hasOwnProperty.call(snapshotVal, 'OpenClose')) {
+        asyncvalue = Object.assign(asyncvalue, {openPercent: snapshotVal.OpenClose.openPercent});
     }
-  }
-  if (Object.prototype.hasOwnProperty.call(snapshotVal, 'TemperatureSetting')) {
-    if (Object.prototype.hasOwnProperty.call(snapshotVal.TemperatureSetting, 'thermostatMode')) {
-      asyncvalue = Object.assign(asyncvalue, {thermostatMode: snapshotVal.TemperatureSetting.thermostatMode});
+    if (Object.prototype.hasOwnProperty.call(snapshotVal, 'InputSelector')) {
+        if (Object.prototype.hasOwnProperty.call(snapshotVal.InputSelector, 'currentInput')) {
+            asyncvalue = Object.assign(asyncvalue, {currentInput: snapshotVal.InputSelector.currentInput});
+        }
+        if (Object.prototype.hasOwnProperty.call(snapshotVal.InputSelector, 'availableInputs')) {
+            asyncvalue = Object.assign(asyncvalue, {availableInputs: snapshotVal.InputSelector.availableInputs});
+        }
+    }
+    if (Object.prototype.hasOwnProperty.call(snapshotVal, 'Volume')) {
+        if (Object.prototype.hasOwnProperty.call(snapshotVal.Volume, 'currentVolume')) {
+            asyncvalue = Object.assign(asyncvalue, {
+                currentVolume: snapshotVal.Volume.currentVolume,
+                volumeLevel: snapshotVal.Volume.currentVolume
+            });
+        }
+        if (Object.prototype.hasOwnProperty.call(snapshotVal.Volume, 'isMuted')) {
+            asyncvalue = Object.assign(asyncvalue, {isMuted: snapshotVal.Volume.isMuted});
+        }
     }
     if (Object.prototype.hasOwnProperty.call(snapshotVal.TemperatureSetting, 'thermostatTemperatureSetpoint')) {
       asyncvalue = Object.assign(asyncvalue, {thermostatTemperatureSetpoint: snapshotVal.TemperatureSetting.thermostatTemperatureSetpoint});
@@ -199,51 +214,43 @@ const queryFirebase = async (deviceId) => {
 };
 
 const queryDevice = async (deviceId) => {
-  const data = await queryFirebase(deviceId);
-
-  var datavalue = {};
-
-  if (Object.prototype.hasOwnProperty.call(data, 'on')) {
-    datavalue = Object.assign(datavalue, {on: data.on});
-  }
-  if (Object.prototype.hasOwnProperty.call(data, 'brightness')) {
-    datavalue = Object.assign(datavalue, {brightness: data.brightness});
-  }
-  if (Object.prototype.hasOwnProperty.call(data, 'color')) {
-    datavalue = Object.assign(datavalue, {color: data.color});
-  }
-  if (Object.prototype.hasOwnProperty.call(data, 'currentFanSpeedSetting')) {
-    datavalue = Object.assign(datavalue, {currentFanSpeedSetting: data.currentFanSpeedSetting});
-  }
-  if (Object.prototype.hasOwnProperty.call(data, 'currentModeSettings')) {
-    datavalue = Object.assign(datavalue, {currentModeSettings: data.currentModeSettings});
-  }
-  if (Object.prototype.hasOwnProperty.call(data, 'thermostatMode')) {
-    datavalue = Object.assign(datavalue, {thermostatMode: data.thermostatMode});
-  }
-  if (Object.prototype.hasOwnProperty.call(data, 'thermostatTemperatureSetpoint')) {
-    datavalue = Object.assign(datavalue, {thermostatTemperatureSetpoint: data.thermostatTemperatureSetpoint});
-  }
-  if (Object.prototype.hasOwnProperty.call(data, 'thermostatTemperatureAmbient')) {
-    datavalue = Object.assign(datavalue, {thermostatTemperatureAmbient: data.thermostatTemperatureAmbient});
-  }
-  if (Object.prototype.hasOwnProperty.call(data, 'thermostatHumidityAmbient')) {
-    datavalue = Object.assign(datavalue, {thermostatHumidityAmbient: data.thermostatHumidityAmbient});
-  }
-  if (Object.prototype.hasOwnProperty.call(data, 'thermostatTemperatureSetpointLow')) {
-    datavalue = Object.assign(datavalue, {thermostatTemperatureSetpointLow: data.thermostatTemperatureSetpointLow});
-  }
-  if (Object.prototype.hasOwnProperty.call(data, 'thermostatTemperatureSetpointHigh')) {
-    datavalue = Object.assign(datavalue, {thermostatTemperatureSetpointHigh: data.thermostatTemperatureSetpointHigh});
-  }
-  return datavalue;
-};
+    const data = await queryFirebase(deviceId);
+    /* device states  / onQuery */
+    var datavalue = {};
+    // Current Volume
+    console.log("Device data -> " + JSON.stringify(data));
+    if (Object.prototype.hasOwnProperty.call(data, 'currentVolume')) {
+        datavalue = Object.assign(datavalue, {currentVolume: data.currentVolume});
+    }
+    // On/Off switches
+    if (Object.prototype.hasOwnProperty.call(data, 'on')) {
+        datavalue = Object.assign(datavalue, {on: data.on});
+    }
+    // Current inputs
+    if (Object.prototype.hasOwnProperty.call(data, 'currentInput')) {
+        datavalue = Object.assign(datavalue, {currentInput: data.currentInput});
+    }
+    // open/close percentage
+    if (Object.prototype.hasOwnProperty.call(data, 'openPercent')) {
+        datavalue = Object.assign(datavalue, {openPercent: data.openPercent});
+    }
+    // list all available inputs
+    if (Object.prototype.hasOwnProperty.call(data, 'availableInputs')) {
+        datavalue = Object.assign(datavalue, {availableInputs: data.availableInputs});
+    }
+    // is Muted
+    if (Object.prototype.hasOwnProperty.call(data, 'isMuted')) {
+        datavalue = Object.assign(datavalue, {isMuted: data.isMuted});
+    }
+    console.log("Final query from device deviceID " + deviceId + " -> " + JSON.stringify(datavalue));
+    return datavalue;
+}
 
 app.onQuery(async (body) => {
-  const {requestId} = body;
-  const payload = {
-    devices: {},
-  };
+    const {requestId} = body;
+    const payload = {
+        devices: {},
+    };
 
   const queryPromises = [];
   const intent = body.inputs[0];
@@ -265,55 +272,75 @@ app.onQuery(async (body) => {
 });
 
 const updateDevice = async (execution, deviceId) => {
-  const {params, command} = execution;
-  let state, let ref;
-  switch (command) {
-    case 'action.devices.commands.OnOff':
-      state = {on: params.on};
-      ref = firebaseRef.child(deviceId).child('OnOff');
-      break;
-    case 'action.devices.commands.BrightnessAbsolute':
-      state = {brightness: params.brightness};
-      ref = firebaseRef.child(deviceId).child('Brightness');
-      break;
-    case 'action.devices.commands.ColorAbsolute':
-      state = {color: params.color};
-      ref = firebaseRef.child(deviceId).child('ColorSetting');
-      break;
-    case 'action.devices.commands.SetFanSpeed':
-      state = {currentFanSpeedSetting: params.fanSpeed};
-      ref = firebaseRef.child(deviceId).child('FanSpeed');
-      break;
-    case 'action.devices.commands.SetModes':
-      state = {currentModeSettings: params.updateModeSettings};
-      ref = firebaseRef.child(deviceId).child('Modes');
-      break;
-    case 'action.devices.commands.ThermostatTemperatureSetpoint':
-      state = {thermostatTemperatureSetpoint: params.thermostatTemperatureSetpoint};
-      ref = firebaseRef.child(deviceId).child('TemperatureSetting');
-      break;
-    case 'action.devices.commands.ThermostatSetMode':
-      state = {thermostatMode: params.thermostatMode};
-      ref = firebaseRef.child(deviceId).child('TemperatureSetting');
-      break;
-    case 'action.devices.commands.ThermostatTemperatureSetRange':
-      state = {thermostatTemperatureSetpointLow: params.thermostatTemperatureSetpointLow,thermostatTemperatureSetpointHigh: params.thermostatTemperatureSetpointHigh};
-      ref = firebaseRef.child(deviceId).child('TemperatureSetting');
-  }
-  return ref.update(state)
-      .then(() => state);
+    /* Commands */
+    const {params, command} = execution;
+    let state, ref;
+    switch (command) {
+        case 'action.devices.commands.SetInput':
+            state = {currentInput: params.newInput};
+            ref = firebaseRef.child(deviceId).child('InputSelector');
+            break;
+        case 'action.devices.commands.setVolume':
+            state = {currentVolume: params.volumeLevel, remote: true};
+            ref = firebaseRef.child(deviceId).child('Volume');
+            break;
+        case 'action.devices.commands.mute':
+            state = {isMuted: params.mute, remote: true};
+            ref = firebaseRef.child(deviceId).child('Volume');
+            break;
+        case 'action.devices.commands.volumeRelative':
+            ref = firebaseRef.child(deviceId).child('Volume');
+            var currentVol = null;
+            ref.child('currentVolume').on("value", function (snapshot) {
+                currentVol = snapshot.val();
+            }, function (errorObject) {
+                console.log("The read failed: " + errorObject.code);
+            });
+            var volStep = params.relativeSteps * 2;
+            var newVol = currentVol + volStep;
+            console.log("New volume is: " + newVol)
+            if (newVol <= 0)
+                state = {currentVolume: 0, remote: true};
+            else
+                state = {currentVolume: newVol, remote: true};
+            break;
+        case 'action.devices.commands.OnOff':
+            state = {on: params.on, remote: true};
+            ref = firebaseRef.child(deviceId).child('OnOff');
+            break;
+        case 'action.devices.commands.Reboot':
+            state = {reboot: true};
+            ref = firebaseRef.child(deviceId).child('RebootNow')
+            break;
+        case 'action.devices.commands.OpenClose':
+            var currentOpenClose;
+            ref = firebaseRef.child(deviceId).child('OpenClose');
+            ref.child('openPercent').on("value", function (snapshot) {
+                currentOpenClose = snapshot.val();
+            }, function (errorObject) {
+                console.log("The read failed: " + errorObject.code);
+            });
+            var newState;
+            newState = (currentOpenClose == 100) ? 0 : 100;
+            state = {openPercent: newState, remote: true};
+            break;
+        default:
+            break;
+    }
+    return ref.update(state)
+        .then(() => state);
 };
 
 app.onExecute(async (body) => {
-  const {requestId} = body;
-  // Execution results are grouped by status
-  const result = {
-    ids: [],
-    status: 'SUCCESS',
-    states: {
-      online: true,
-    },
-  };
+    const {requestId} = body;
+    // Execution results are grouped by status
+    const result = {
+        ids: [],
+        status: 'SUCCESS',
+        states: {
+            online: true,
+        },
+    };
 
   const executePromises = [];
   const intent = body.inputs[0];

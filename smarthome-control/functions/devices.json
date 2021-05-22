@@ -1,239 +1,191 @@
 ﻿[
   {
-    "id": "1",
+    "id": "outside-lights",
     "type": "action.devices.types.LIGHT",
     "traits": [
-      "action.devices.traits.OnOff",
-      "action.devices.traits.Brightness",
-      "action.devices.traits.ColorSetting"
-    ],
-    "name": {
-      "defaultNames": [
-        "My Test Light1"
-      ],
-      "name": "Light 1",
-      "nicknames": [
-        "Patio Light"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "Siddhy Co",
-      "model": "Siddhys RGB Bulb",
-      "hwVersion": "1.0",
-      "swVersion": "1.0.1"
-    },
-    "willReportState": true,
-    "attributes": {
-      "commandOnlyOnOff": false,
-      "commandOnlyColorSetting": false,
-      "commandOnlyBrightness": false,
-      "colorModel": "rgb",
-      "colorTemperatureRange": {
-        "temperatureMinK": 2000,
-        "temperatureMaxK": 6500
-      }
-    }
-  },
-  {
-    "id": "2",
-    "type": "action.devices.types.LIGHT",
-    "traits": [
-      "action.devices.traits.OnOff",
-      "action.devices.traits.Brightness"
-    ],
-    "name": {
-      "defaultNames": [
-        "My Test Light2"
-      ],
-      "name": "Light 2",
-      "nicknames": [
-        "Corridor Light"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "Siddhy Co",
-      "model": "Siddhys LED Bulb",
-      "hwVersion": "2.0",
-      "swVersion": "2.0.1"
-    },
-    "willReportState": true,
-    "attributes": {
-      "commandOnlyOnOff": false,
-      "commandOnlyBrightness": false
-    }
-  },
-  {
-    "id": "3",
-    "type": "action.devices.types.FAN",
-    "traits": [
-      "action.devices.traits.FanSpeed",
       "action.devices.traits.OnOff"
     ],
     "name": {
       "defaultNames": [
-        "My Fan"
+        "Rock Garden Lighting"
       ],
-      "name": "Fan1",
+      "name": "Rock Garden Lighting",
       "nicknames": [
-        "Ceiling Fan"
+        "Rock Garden Lighting"
       ]
     },
     "deviceInfo": {
-      "manufacturer": "Siddhy Co",
-      "model": "Siddhys High Effeciency Fan",
-      "hwVersion": "3.0",
-      "swVersion": "4.0.1"
+      "manufacturer": "GTECH",
+      "model": "Arduino Nano 33 IOT",
+      "hwVersion": "1.0",
+      "swVersion": "1.3"
     },
-    "willReportState": true,
+    "willReportState": false,
     "attributes": {
-      "commandOnlyOnOff": false,
-      "commandOnlyFanSpeed": false,
-      "availableFanSpeeds": {
-        "speeds": [
-          {"speed_name": "Low", "speed_values": [{"speed_synonym": ["low", "low speed", "slow"], "lang": "en"}]},
-          {"speed_name": "Medium", "speed_values": [{"speed_synonym": ["medium", "medium speed", "med"], "lang": "en"}]}
-        ],
-        "ordered": true
-      }
+      "commandOnlyOnOff": true
     }
   },
   {
-    "id": "4",
-    "type": "action.devices.types.THERMOSTAT",
+    "id": "upstairs-tv",
+    "type": "action.devices.types.TV",
     "traits": [
-      "action.devices.traits.TemperatureSetting"
+      "action.devices.traits.Volume",
+      "action.devices.traits.OnOff"
     ],
     "name": {
       "defaultNames": [
-        "Temp Control"
+        "Upstairs TV"
       ],
-      "name": "Temperature Controller ",
+      "name": "Upstairs TV",
       "nicknames": [
-        "Thermal Controller"
+        "Upstairs TV"
       ]
     },
     "deviceInfo": {
-      "manufacturer": "Siddhy Co",
-      "model": "Siddhys Thermostat",
-      "hwVersion": "4.0",
-      "swVersion": "5.0.1"
+      "manufacturer": "LG",
+      "model": "WebOSTV",
+      "hwVersion": "1.0",
+      "swVersion": "2.0"
     },
+    "online": true,
     "willReportState": true,
     "attributes": {
-      "availableThermostatModes": "off,on,heat,cool,heatcool",
-      "queryOnlyTemperatureSetting": false,
-      "thermostatTemperatureUnit": "C",
-      "commandOnlyTemperatureSetting": false
+      "volumeMaxLevel": 100,
+      "volumeDefaultPercentage": 10,
+      "volumeCanMuteAndUnmute": true,
+      "commandOnlyOnOff": false 
     }
   },
   {
-    "id": "5",
-    "type": "action.devices.types.THERMOSTAT",
+    "id": "garage-door",
+    "type": "action.devices.types.GARAGE",
     "traits": [
-      "action.devices.traits.TemperatureSetting"
+      "action.devices.traits.OpenClose"
     ],
     "name": {
       "defaultNames": [
-        "Temp Sensor"
+        "PiMation Garage Door"
       ],
-      "name": "Room Temperature Sensor",
+      "name": "Garage Door",
       "nicknames": [
-        "Ambient Temperature Sensor"
+        "Garage",
+        "Garage Door"
       ]
     },
     "deviceInfo": {
-      "manufacturer": "Siddhy Co",
-      "model": "Siddhys Temperature Sensor",
-      "hwVersion": "5.0",
-      "swVersion": "6.0.1"
+      "manufacturer": "GTECH",
+      "model": "PiMation",
+      "hwVersion": "1.0",
+      "swVersion": "2.0"
     },
     "willReportState": true,
     "attributes": {
-      "queryOnlyTemperatureSetting": true,
-      "thermostatTemperatureUnit": "C"
+      "discreteOnlyOpenClose": true,
+      "queryOnlyOpenClose": false,
+      "commandOnlyOpenClose": false,
+      "openDirection": [
+        "UP",
+        "DOWN"
+      ]
     }
   },
   {
-    "id": "6",
+    "id": "rtr1",
+    "type": "action.devices.types.ROUTER",
+    "traits": [
+      "action.devices.traits.Reboot"
+    ],
+    "name": {
+      "defaultNames": [
+        "Asus RT-AC66U"
+      ],
+      "name": "Basement Router",
+      "nicknames": [
+        "Basement Router"
+      ]
+    },
+    "deviceInfo": {
+      "manufacturer": "Asus",
+      "model": "RT-AC66U",
+      "hwVersion": "1.0",
+      "swVersion": "Tomato"
+    },
+    "willReportState": true
+  },
+  {
+    "id": "rtr2",
+    "type": "action.devices.types.ROUTER",
+    "traits": [
+      "action.devices.traits.Reboot"
+    ],
+    "name": {
+      "defaultNames": [
+        "Asus RT-N66W"
+      ],
+      "name": "Upstairs Router",
+      "nicknames": [
+        "Upstairs Router"
+      ]
+    },
+    "deviceInfo": {
+      "manufacturer": "Asus",
+      "model": "RT-N66W",
+      "hwVersion": "1.0",
+      "swVersion": "Tomato"
+    },
+    "willReportState": true
+  },
+  {
+    "id": "fishtank-pump",
     "type": "action.devices.types.SWITCH",
     "traits": [
       "action.devices.traits.OnOff"
     ],
     "name": {
       "defaultNames": [
-        "Plug Socket"
+        "Fish Tank Filter"
       ],
-      "name": "Smart Switch",
+      "name": "Fish Tank Filter",
       "nicknames": [
-        "New Switch"
+        "Fish Tank Pump",
+        "Fish Tank Filter"
       ]
     },
     "deviceInfo": {
-      "manufacturer": "Siddhy Co",
-      "model": "Siddhys On/Off Switch",
-      "hwVersion": "6.0",
-      "swVersion": "7.0.1"
+      "manufacturer": "GTECH",
+      "model": "Arduino Nano 33 IOT",
+      "hwVersion": "1.0",
+      "swVersion": "1.0"
     },
-    "willReportState": true,
+    "willReportState": false,
     "attributes": {
       "commandOnlyOnOff": false
     }
   },
   {
-    "id": "7",
+    "id": "fishtank-light",
     "type": "action.devices.types.LIGHT",
     "traits": [
-      "action.devices.traits.OnOff",
-      "action.devices.traits.Brightness",
-      "action.devices.traits.ColorSetting",
-      "action.devices.traits.Modes"
+      "action.devices.traits.OnOff"
     ],
     "name": {
       "defaultNames": [
-        "My Test Light3"
+        "Fish Tank Lighting"
       ],
-      "name": "Light 3",
+      "name": "Fish Tank Light",
       "nicknames": [
-        "Mood light"
+        "Fish Tank Light"
       ]
     },
     "deviceInfo": {
-      "manufacturer": "Siddhy Co",
-      "model": "Siddhys RGB Bulb Mode",
-      "hwVersion": "2.0",
-      "swVersion": "2.0.0"
+      "manufacturer": "GTECH",
+      "model": "Arduino Nano 33 IOT",
+      "hwVersion": "1.0",
+      "swVersion": "1.0"
     },
-    "willReportState": true,
+    "willReportState": false,
     "attributes": {
-      "availableModes": [{
-        "name": "Mood",
-        "name_values": [{"name_synonym": ["mood", "feeling"], "lang": "en" }],
-        "settings": [
-          {"setting_name": "Blank", "setting_values": [{"setting_synonym": ["null", "nothing"], "lang": "en"}]
-          },
-          {"setting_name": "Happy", "setting_values": [{"setting_synonym": ["happy", "cheerful"], "lang": "en"}]
-          },
-          {"setting_name": "Sad", "setting_values": [{"setting_synonym": ["sad", "unhappy"], "lang": "en"}]
-          },
-          {"setting_name": "Angry", "setting_values": [{"setting_synonym": ["angry", "annoyed"], "lang": "en"}]
-          },
-          {"setting_name": "Party", "setting_values": [{"setting_synonym": ["party", "dance"], "lang": "en"}]
-          },
-          {"setting_name": "Anxious", "setting_values": [{"setting_synonym": ["anxious mood", "anxiety"], "lang": "en"}]
-          },
-          {"setting_name": "Busy", "setting_values": [{"setting_synonym": ["busy mood", "busy", "at work"], "lang": "en"}]
-          }
-        ],
-        "ordered": true
-        }],
-      "commandOnlyOnOff": false,
-      "commandOnlyBrightness": false,
-      "commandOnlyModes": false,
-      "colorModel": "rgb",
-      "colorTemperatureRange": {
-        "temperatureMinK": 2000,
-        "temperatureMaxK": 6500
-      }
+      "commandOnlyOnOff": false
     }
   }
 ]
