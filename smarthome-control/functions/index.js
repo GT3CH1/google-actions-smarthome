@@ -79,38 +79,37 @@ var devicecounter;
 
 app.onSync((body) => {
     console.log('onSync');
+    let currDevice = deviceitems[devicecounter];
     for (devicecounter = 0; devicecounter < deviceitems.length; devicecounter++) {
-        if (deviceitems[devicecounter].traits.includes('action.devices.traits.OnOff')) {
-            if(firebaseRef.child(deviceitems[devicecounter].id).child('OnOff').child('on') == undefined){
-                firebaseRef.child(deviceitems[devicecounter].id).child('OnOff').update({on: false,remote: false});
-            }
+        if (currDevice.traits.includes('action.devices.traits.OnOff')) {
+            firebaseRef.child(currDevice.id).child('OnOff').update({on: false, remote: false});
         }
-        if(deviceitems[devicecounter].traits.includes('action.devices.traits.Reboot')){
-            firebaseRef.child(deviceitems[devicecounter].id).child('RebootNow').update({reboot: false});
+        if (currDevice.traits.includes('action.devices.traits.Reboot')) {
+            firebaseRef.child(currDevice.id).child('RebootNow').update({reboot: false});
         }
-        if (deviceitems[devicecounter].traits.includes('action.devices.traits.Brightness')) {
-            firebaseRef.child(deviceitems[devicecounter].id).child('Brightness').update({brightness: 10});
+        if (currDevice.traits.includes('action.devices.traits.Brightness')) {
+            firebaseRef.child(currDevice.id).child('Brightness').update({brightness: 10});
         }
-        if (deviceitems[devicecounter].traits.includes('action.devices.traits.OpenClose')) {
-            firebaseRef.child(deviceitems[devicecounter].id).child('OpenClose').update({openPercent: 0, remote: false});
+        if (currDevice.traits.includes('action.devices.traits.OpenClose')) {
+            firebaseRef.child(currDevice.id).child('OpenClose').update({openPercent: 0, remote: false});
         }
-        if (deviceitems[devicecounter].traits.includes('action.devices.traits.Volume')) {
-            var deviceAttributes = deviceitems[devicecounter].attributes;
+        if (currDevice.traits.includes('action.devices.traits.Volume')) {
+            var deviceAttributes = currDevice.attributes;
             deviceAttributes = Object.assign(deviceAttributes, {currentVolume: 10, remote: false});
-            if(firebaseRef.child(deviceitems[devicecounter].id).child('Volume').child('currentVolume') == undefined){
-                 firebaseRef.child(deviceitems[devicecounter].id).child('Volume').update({
-                     currentVolume: 20
-                 });
+            if (firebaseRef.child(currDevice.id).child('Volume').child('currentVolume') == undefined) {
+                firebaseRef.child(currDevice.id).child('Volume').update({
+                    currentVolume: 20
+                });
             }
-            if(firebaseRef.child(deviceitems[devicecounter].id).child('Volume').child('isMuted') == undefined){
-                firebaseRef.child(deviceitems[devicecounter].id).child('Volume').update({
+            if (firebaseRef.child(currDevice.id).child('Volume').child('isMuted') == undefined) {
+                firebaseRef.child(currDevice.id).child('Volume').update({
                     isMuted: false
                 });
             }
         }
-        if (deviceitems[devicecounter].traits.includes('action.devices.traits.InputSelector')) {
-            var availableInputs = deviceitems[devicecounter].attributes.availableInputs;
-            firebaseRef.child(deviceitems[devicecounter].id).child('InputSelector').update({
+        if (currDevice.traits.includes('action.devices.traits.InputSelector')) {
+            var availableInputs = currDevice.attributes.availableInputs;
+            firebaseRef.child(currDevice.id).child('InputSelector').update({
                 availableInputs: availableInputs,
                 currentInput: availableInputs[0]['key']
             });
@@ -123,9 +122,9 @@ app.onSync((body) => {
             agentUserId: '123',
             devices: deviceitems
         },
-    };    
+    };
     console.log("JSON (onSync) " + JSON.stringify(data));
-    return data; 
+    return data;
 });
 
 
@@ -142,18 +141,21 @@ const queryFirebase = async (deviceId) => {
         asyncvalue = Object.assign(asyncvalue, {openPercent: snapshotVal.OpenClose.openPercent});
     }
     if (Object.prototype.hasOwnProperty.call(snapshotVal, 'InputSelector')) {
-        if(Object.prototype.hasOwnProperty.call(snapshotVal.InputSelector, 'currentInput')){
-            asyncvalue = Object.assign(asyncvalue, {currentInput: snapshotVal.InputSelector.currentInput });
+        if (Object.prototype.hasOwnProperty.call(snapshotVal.InputSelector, 'currentInput')) {
+            asyncvalue = Object.assign(asyncvalue, {currentInput: snapshotVal.InputSelector.currentInput});
         }
-        if(Object.prototype.hasOwnProperty.call(snapshotVal.InputSelector, 'availableInputs')) {
+        if (Object.prototype.hasOwnProperty.call(snapshotVal.InputSelector, 'availableInputs')) {
             asyncvalue = Object.assign(asyncvalue, {availableInputs: snapshotVal.InputSelector.availableInputs});
         }
     }
     if (Object.prototype.hasOwnProperty.call(snapshotVal, 'Volume')) {
-        if(Object.prototype.hasOwnProperty.call(snapshotVal.Volume, 'currentVolume')) {
-            asyncvalue = Object.assign(asyncvalue, {currentVolume: snapshotVal.Volume.currentVolume, volumeLevel: snapshotVal.Volume.currentVolume});
+        if (Object.prototype.hasOwnProperty.call(snapshotVal.Volume, 'currentVolume')) {
+            asyncvalue = Object.assign(asyncvalue, {
+                currentVolume: snapshotVal.Volume.currentVolume,
+                volumeLevel: snapshotVal.Volume.currentVolume
+            });
         }
-        if(Object.prototype.hasOwnProperty.call(snapshotVal.Volume, 'isMuted')) {
+        if (Object.prototype.hasOwnProperty.call(snapshotVal.Volume, 'isMuted')) {
             asyncvalue = Object.assign(asyncvalue, {isMuted: snapshotVal.Volume.isMuted});
         }
     }
@@ -167,9 +169,9 @@ const queryDevice = async (deviceId) => {
     var datavalue = {};
     // Current Volume
     console.log("Device data -> " + JSON.stringify(data));
-    if (Object.prototype.hasOwnProperty.call(data, 'currentVolume')) {              
-        datavalue = Object.assign(datavalue, {currentVolume: data.currentVolume });
-    }                
+    if (Object.prototype.hasOwnProperty.call(data, 'currentVolume')) {
+        datavalue = Object.assign(datavalue, {currentVolume: data.currentVolume});
+    }
     // On/Off switches                                                               
     if (Object.prototype.hasOwnProperty.call(data, 'on')) {
         datavalue = Object.assign(datavalue, {on: data.on});
@@ -187,10 +189,10 @@ const queryDevice = async (deviceId) => {
         datavalue = Object.assign(datavalue, {availableInputs: data.availableInputs});
     }
     // is Muted
-    if(Object.prototype.hasOwnProperty.call(data, 'isMuted')){
-        datavalue = Object.assign(datavalue, {isMuted: data.isMuted} );
+    if (Object.prototype.hasOwnProperty.call(data, 'isMuted')) {
+        datavalue = Object.assign(datavalue, {isMuted: data.isMuted});
     }
-    console.log("Final query from device deviceID " + deviceId  + " -> " + JSON.stringify(datavalue));
+    console.log("Final query from device deviceID " + deviceId + " -> " + JSON.stringify(datavalue));
     return datavalue;
 }
 
@@ -215,7 +217,7 @@ app.onQuery(async (body) => {
     var mydata = {
         requestId: requestId,
         payload: payload,
-    };    
+    };
     console.log("JSON (onQuery) -> " + JSON.stringify(mydata));
     return mydata
 });
@@ -230,11 +232,11 @@ const updateDevice = async (execution, deviceId) => {
             ref = firebaseRef.child(deviceId).child('InputSelector');
             break;
         case 'action.devices.commands.setVolume':
-            state = {currentVolume: params.volumeLevel,remote:true};
+            state = {currentVolume: params.volumeLevel, remote: true};
             ref = firebaseRef.child(deviceId).child('Volume');
             break;
         case 'action.devices.commands.mute':
-            state = {isMuted: params.mute,remote:true};
+            state = {isMuted: params.mute, remote: true};
             ref = firebaseRef.child(deviceId).child('Volume');
             break;
         case 'action.devices.commands.volumeRelative':
@@ -249,12 +251,12 @@ const updateDevice = async (execution, deviceId) => {
             var newVol = currentVol + volStep;
             console.log("New volume is: " + newVol)
             if (newVol <= 0)
-                state = {currentVolume: 0,remote: true};
+                state = {currentVolume: 0, remote: true};
             else
-                state = {currentVolume: newVol,remote:true};
-            break;                  
+                state = {currentVolume: newVol, remote: true};
+            break;
         case 'action.devices.commands.OnOff':
-            state = {on: params.on,remote: true};
+            state = {on: params.on, remote: true};
             ref = firebaseRef.child(deviceId).child('OnOff');
             break;
         case 'action.devices.commands.Reboot':
@@ -270,7 +272,7 @@ const updateDevice = async (execution, deviceId) => {
                 console.log("The read failed: " + errorObject.code);
             });
             var newState;
-            newState = (currentOpenClose == 100 ) ? 0 : 100;
+            newState = (currentOpenClose == 100) ? 0 : 100;
             state = {openPercent: newState, remote: true};
             break;
         default:
@@ -303,13 +305,13 @@ app.onExecute(async (body) => {
                             Object.assign(result.states, data);
                         })
                         .catch((error) => {
-                                    functions.logger.error('EXECUTE', device.id, error);
-                                    result.ids.push(device.id);
-                                    if(error instanceof SmartHomeError) {
-                                      result.status = 'ERROR';
-                                      result.errorCode = error.errorCode;
-                                    }
-                                  })
+                            functions.logger.error('EXECUTE', device.id, error);
+                            result.ids.push(device.id);
+                            if (error instanceof SmartHomeError) {
+                                result.status = 'ERROR';
+                                result.errorCode = error.errorCode;
+                            }
+                        })
                 );
             }
         }
@@ -362,7 +364,10 @@ exports.reportstate = functions.database.ref('{deviceId}').onWrite(async (change
         syncvalue = Object.assign(syncvalue, {brightness: snapshot.Brightness.brightness});
     }
     if (Object.prototype.hasOwnProperty.call(snapshot, 'Volume')) {
-        syncvalue = Object.assign(syncvalue, {currentVolume: snapshot.Volume.currentVolume, isMuted: snapshot.Volume.isMuted});
+        syncvalue = Object.assign(syncvalue, {
+            currentVolume: snapshot.Volume.currentVolume,
+            isMuted: snapshot.Volume.isMuted
+        });
     }
     const postData = {
         requestId: 'gtechtest', /* Any unique ID */
@@ -380,9 +385,9 @@ exports.reportstate = functions.database.ref('{deviceId}').onWrite(async (change
 
 
 class SmartHomeError extends Error {
-  constructor(errorCode, message) {
-    super(message);
-    this.name = this.constructor.name;
-    this.errorCode = errorCode;
-  }
+    constructor(errorCode, message) {
+        super(message);
+        this.name = this.constructor.name;
+        this.errorCode = errorCode;
+    }
 }
