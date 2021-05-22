@@ -19,51 +19,87 @@
 const functions = require('firebase-functions');
 require('firebase-functions/lib/logger/compat');
 const {smarthome} = require('actions-on-google');
+const {google} = require('googleapis');
 const util = require('util');
 const admin = require('firebase-admin');
 // Initialize Firebase
 admin.initializeApp();
 const firebaseRef = admin.database().ref('/');
 
-exports.fakeauth = functions.https.onRequest((request, response) => {
-    const responseurl = util.format('%s?code=%s&state=%s',
-        decodeURIComponent(request.query.redirect_uri), 'xxxxxx',
-        request.query.state);
+// Hardcoded user ID
+const USER_ID = '123';
+
+exports.login = functions.https.onRequest((request, response) => {
+  if (request.method === 'GET') {
+    functions.logger.log('Requesting login page');
+    response.send(`
+    <html>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <body>
+        <form action="/login" method="post">
+          <input type="hidden"
+            name="responseurl" value="${request.query.responseurl}" />
+          <button type="submit" style="font-size:14pt">
+            Link this service to Google
+          </button>
+        </form>
+      </body>
+    </html>
+  `);
+  } else if (request.method === 'POST') {
+    // Here, you should validate the user account.
+    // In this sample, we do not do that.
+    const responseurl = decodeURIComponent(request.body.responseurl);
+    functions.logger.log(`Redirect to ${responseurl}`);
     return response.redirect(responseurl);
+  } else {
+    // Unsupported method
+    response.send(405, 'Method Not Allowed');
+  }
+});
+
+
+exports.fakeauth = functions.https.onRequest((request, response) => {
+  const responseurl = util.format('%s?code=%s&state=%s',
+      decodeURIComponent(request.query.redirect_uri), 'xxxxxx',
+      request.query.state);
+  functions.logger.log(`Set redirect as ${responseurl}`);
+  return response.redirect(
+      `/login?responseurl=${encodeURIComponent(responseurl)}`);
 });
 
 exports.faketoken = functions.https.onRequest((request, response) => {
-    const grantType = request.query.grant_type
-        ? request.query.grant_type : request.body.grant_type;
-    const secondsInDay = 86400; // 60 * 60 * 24
-    const HTTP_STATUS_OK = 200;
-    console.log(`Grant type ${grantType}`);
+  const grantType = request.query.grant_type ?
+    request.query.grant_type : request.body.grant_type;
+  const secondsInDay = 86400; // 60 * 60 * 24
+  const HTTP_STATUS_OK = 200;
+  functions.logger.log(`Grant type ${grantType}`);
 
-    let obj;
-    if (grantType === 'authorization_code') {
-        obj = {
-            token_type: 'bearer',
-            access_token: '123access',
-            refresh_token: '123refresh',
-            expires_in: secondsInDay,
-        };
-    } else if (grantType === 'refresh_token') {
-        obj = {
-            token_type: 'bearer',
-            access_token: '123access',
-            expires_in: secondsInDay,
-        };
-    }
-    response.status(HTTP_STATUS_OK)
-        .json(obj);
+  let obj;
+  if (grantType === 'authorization_code') {
+    obj = {
+      token_type: 'bearer',
+      access_token: '123access',
+      refresh_token: '123refresh',
+      expires_in: secondsInDay,
+    };
+  } else if (grantType === 'refresh_token') {
+    obj = {
+      token_type: 'bearer',
+      access_token: '123access',
+      expires_in: secondsInDay,
+    };
+  }
+  response.status(HTTP_STATUS_OK)
+      .json(obj);
 });
 
 let jwt
 try {
     jwt = require('./serviceAccountKey.json')
 } catch (e) {
-    console.warn('Service account key is not found')
-    console.warn('Report state and Request sync will be unavailable')
+  functions.logger.warn('Service account key is not found')
+  functions.logger.warn('Report state and Request sync will be unavailable')
 }
 
 const app = smarthome({
@@ -119,7 +155,7 @@ app.onSync((body) => {
     data = {
         requestId: body.requestId,
         payload: {
-            agentUserId: '123',
+            agentUserId: USER_ID,
             devices: deviceitems
         },
     };
@@ -188,20 +224,55 @@ const queryDevice = async (deviceId) => {
     if (Object.prototype.hasOwnProperty.call(data, 'availableInputs')) {
         datavalue = Object.assign(datavalue, {availableInputs: data.availableInputs});
     }
-    // is Muted
-    if (Object.prototype.hasOwnProperty.call(data, 'isMuted')) {
-        datavalue = Object.assign(datavalue, {isMuted: data.isMuted});
-    }
-    console.log("Final query from device deviceID " + deviceId + " -> " + JSON.stringify(datavalue));
-    return datavalue;
-}
+  return datavalue;
+};
+
+const queryDevice = async (deviceId) => {
+  const data = await queryFirebase(deviceId);
+
+  var datavalue = {};
+
+  if (Object.prototype.hasOwnProperty.call(data, 'on')) {
+    datavalue = Object.assign(datavalue, {on: data.on});
+  }
+  if (Object.prototype.hasOwnProperty.call(data, 'brightness')) {
+    datavalue = Object.assign(datavalue, {brightness: data.brightness});
+  }
+  if (Object.prototype.hasOwnProperty.call(data, 'color')) {
+    datavalue = Object.assign(datavalue, {color: data.color});
+  }
+  if (Object.prototype.hasOwnProperty.call(data, 'currentFanSpeedSetting')) {
+    datavalue = Object.assign(datavalue, {currentFanSpeedSetting: data.currentFanSpeedSetting});
+  }
+  if (Object.prototype.hasOwnProperty.call(data, 'currentModeSettings')) {
+    datavalue = Object.assign(datavalue, {currentModeSettings: data.currentModeSettings});
+  }
+  if (Object.prototype.hasOwnProperty.call(data, 'thermostatMode')) {
+    datavalue = Object.assign(datavalue, {thermostatMode: data.thermostatMode});
+  }
+  if (Object.prototype.hasOwnProperty.call(data, 'thermostatTemperatureSetpoint')) {
+    datavalue = Object.assign(datavalue, {thermostatTemperatureSetpoint: data.thermostatTemperatureSetpoint});
+  }
+  if (Object.prototype.hasOwnProperty.call(data, 'thermostatTemperatureAmbient')) {
+    datavalue = Object.assign(datavalue, {thermostatTemperatureAmbient: data.thermostatTemperatureAmbient});
+  }
+  if (Object.prototype.hasOwnProperty.call(data, 'thermostatHumidityAmbient')) {
+    datavalue = Object.assign(datavalue, {thermostatHumidityAmbient: data.thermostatHumidityAmbient});
+  }
+  if (Object.prototype.hasOwnProperty.call(data, 'thermostatTemperatureSetpointLow')) {
+    datavalue = Object.assign(datavalue, {thermostatTemperatureSetpointLow: data.thermostatTemperatureSetpointLow});
+  }
+  if (Object.prototype.hasOwnProperty.call(data, 'thermostatTemperatureSetpointHigh')) {
+    datavalue = Object.assign(datavalue, {thermostatTemperatureSetpointHigh: data.thermostatTemperatureSetpointHigh});
+  }
+  return datavalue;
+};
 
 app.onQuery(async (body) => {
     const {requestId} = body;
     const payload = {
         devices: {},
     };
-
     const queryPromises = [];
     const intent = body.inputs[0];
     for (const device of intent.payload.devices) {
@@ -292,54 +363,49 @@ app.onExecute(async (body) => {
             online: true,
         },
     };
-
-    const executePromises = [];
-    const intent = body.inputs[0];
-    for (const command of intent.payload.commands) {
-        for (const device of command.devices) {
-            for (const execution of command.execution) {
-                executePromises.push(
-                    updateDevice(execution, device.id)
-                        .then((data) => {
-                            result.ids.push(device.id);
-                            Object.assign(result.states, data);
-                        })
-                        .catch((error) => {
-                            functions.logger.error('EXECUTE', device.id, error);
-                            result.ids.push(device.id);
-                            if (error instanceof SmartHomeError) {
-                                result.status = 'ERROR';
-                                result.errorCode = error.errorCode;
-                            }
-                        })
-                );
-            }
-        }
-    }
-
-    await Promise.all(executePromises)
-    return {
-        requestId: requestId,
-        payload: {
-            commands: [result],
-        },
-    };
+  const executePromises = [];
+  const intent = body.inputs[0];
+  for (const command of intent.payload.commands) {
+      for (const device of command.devices) {
+          for (const execution of command.execution) {
+              executePromises.push(
+                  updateDevice(execution, device.id)
+                      .then((data) => {
+                          result.ids.push(device.id);
+                          Object.assign(result.states, data);
+                      })
+                      .catch(() => functions.logger.error('EXECUTE', device.id)));
+          }
+      }
+  }
+  await Promise.all(executePromises);
+  return {
+    requestId: requestId,
+    payload: {
+      commands: [result],
+    },
+  };
 });
 
+app.onDisconnect((body, headers) => {
+  functions.logger.log('User account unlinked from Google Assistant');
+  // Return empty response
+  return {};
+});
 
 exports.smarthome = functions.https.onRequest(app);
 
 exports.requestsync = functions.https.onRequest(async (request, response) => {
-    response.set('Access-Control-Allow-Origin', '*');
-    console.info('Request SYNC for user 123');
-    try {
-        const res = await app.requestSync('123');
-        console.log('Request sync completed');
-        response.json(res.data);
-    } catch (err) {
-        console.error(err);
-        response.status(500).send(`Error requesting sync: ${err}`)
-    }
+  response.set('Access-Control-Allow-Origin', '*');
+  functions.logger.info('Request SYNC for user ${USER_ID}');
+  try {
+    const res = await app.requestSync(USER_ID);
+    functions.logger.log('Request sync completed');
+    response.json(res.data);
+  } catch (err) {
+    functions.logger.error(err);
+    response.status(500).send(`Error requesting sync: ${err}`);
+  }
 });
 
 /**
@@ -347,13 +413,13 @@ exports.requestsync = functions.https.onRequest(async (request, response) => {
  * has been changed.
  */
 exports.reportstate = functions.database.ref('{deviceId}').onWrite(async (change, context) => {
-    console.info('Firebase write event triggered this cloud function');
-    if (!app.jwt) {
-        console.warn('Service account key is not configured');
-        console.warn('Report state is unavailable');
-        return;
-    }
-    const snapshot = change.after.val();
+    functions.logger.info('Firebase write event triggered this cloud function');
+  if (!app.jwt) {
+    functions.logger.warn('Service account key is not configured');
+    functions.logger.warn('Report state is unavailable');
+    return;
+  }
+  const snapshot = change.after.val();
 
     var syncvalue = {};
 
@@ -369,25 +435,20 @@ exports.reportstate = functions.database.ref('{deviceId}').onWrite(async (change
             isMuted: snapshot.Volume.isMuted
         });
     }
-    const postData = {
-        requestId: 'gtechtest', /* Any unique ID */
-        agentUserId: '123', /* Hardcoded user ID */
-        payload: {
-            devices: {
-                states: {
-                    [context.params.deviceId]: syncvalue
-                }
-            }
-        }
-    }
-    const data = await app.reportState(postData);
+  const postData = {
+    requestId: 'gtechtest', /* Any unique ID */
+    agentUserId: USER_ID, /* Hardcoded user ID */
+    payload: {
+      devices: {
+        states: {
+          /* Report the current state of our light */
+          [context.params.deviceId]: syncvalue,
+        },
+      },
+    },
+  };
+
+  const data = await app.reportState(postData);
+  functions.logger.log('Report state came back');
+  functions.logger.info(data);
 });
-
-
-class SmartHomeError extends Error {
-    constructor(errorCode, message) {
-        super(message);
-        this.name = this.constructor.name;
-        this.errorCode = errorCode;
-    }
-}
