@@ -7,157 +7,20 @@
     ],
     "name": {
       "defaultNames": [
-        "Rock Garden Lighting"
+        "Rock Garden Lights"
       ],
-      "name": "Rock Garden Lighting",
+      "name": "Rock Garden Lights",
       "nicknames": [
-        "Rock Garden Lighting"
+        "Rock Garden Lights"
       ]
     },
     "deviceInfo": {
-      "manufacturer": "GTECH",
-      "model": "Arduino Nano 33 IOT",
-      "hwVersion": "1.0",
-      "swVersion": "1.3"
-    },
-    "willReportState": false,
-    "attributes": {
-      "commandOnlyOnOff": true
-    }
-  },
-  {
-    "id": "upstairs-tv",
-    "type": "action.devices.types.TV",
-    "traits": [
-      "action.devices.traits.Volume",
-      "action.devices.traits.OnOff"
-    ],
-    "name": {
-      "defaultNames": [
-        "Upstairs TV"
-      ],
-      "name": "Upstairs TV",
-      "nicknames": [
-        "Upstairs TV"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "LG",
-      "model": "WebOSTV",
-      "hwVersion": "1.0",
-      "swVersion": "2.0"
-    },
-    "online": true,
-    "willReportState": true,
-    "attributes": {
-      "volumeMaxLevel": 100,
-      "volumeDefaultPercentage": 10,
-      "volumeCanMuteAndUnmute": true,
-      "commandOnlyOnOff": false 
-    }
-  },
-  {
-    "id": "garage-door",
-    "type": "action.devices.types.GARAGE",
-    "traits": [
-      "action.devices.traits.OpenClose"
-    ],
-    "name": {
-      "defaultNames": [
-        "PiMation Garage Door"
-      ],
-      "name": "Garage Door",
-      "nicknames": [
-        "Garage",
-        "Garage Door"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "GTECH",
-      "model": "PiMation",
-      "hwVersion": "1.0",
-      "swVersion": "2.0"
-    },
-    "willReportState": true,
-    "attributes": {
-      "discreteOnlyOpenClose": true,
-      "queryOnlyOpenClose": false,
-      "commandOnlyOpenClose": false,
-      "openDirection": [
-        "UP",
-        "DOWN"
-      ]
-    }
-  },
-  {
-    "id": "rtr1",
-    "type": "action.devices.types.ROUTER",
-    "traits": [
-      "action.devices.traits.Reboot"
-    ],
-    "name": {
-      "defaultNames": [
-        "Asus RT-AC66U"
-      ],
-      "name": "Basement Router",
-      "nicknames": [
-        "Basement Router"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "Asus",
-      "model": "RT-AC66U",
-      "hwVersion": "1.0",
-      "swVersion": "Tomato"
-    },
-    "willReportState": true
-  },
-  {
-    "id": "rtr2",
-    "type": "action.devices.types.ROUTER",
-    "traits": [
-      "action.devices.traits.Reboot"
-    ],
-    "name": {
-      "defaultNames": [
-        "Asus RT-N66W"
-      ],
-      "name": "Upstairs Router",
-      "nicknames": [
-        "Upstairs Router"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "Asus",
-      "model": "RT-N66W",
-      "hwVersion": "1.0",
-      "swVersion": "Tomato"
-    },
-    "willReportState": true
-  },
-  {
-    "id": "fishtank-pump",
-    "type": "action.devices.types.SWITCH",
-    "traits": [
-      "action.devices.traits.OnOff"
-    ],
-    "name": {
-      "defaultNames": [
-        "Fish Tank Filter"
-      ],
-      "name": "Fish Tank Filter",
-      "nicknames": [
-        "Fish Tank Pump",
-        "Fish Tank Filter"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "GTECH",
-      "model": "Arduino Nano 33 IOT",
+      "manufacturer": "Arduino",
+      "model": "Nano 33 IOT",
       "hwVersion": "1.0",
       "swVersion": "1.0"
     },
-    "willReportState": false,
+    "willReportState": true,
     "attributes": {
       "commandOnlyOnOff": false
     }
@@ -170,7 +33,7 @@
     ],
     "name": {
       "defaultNames": [
-        "Fish Tank Lighting"
+        "Fish Tank Light"
       ],
       "name": "Fish Tank Light",
       "nicknames": [
@@ -178,12 +41,38 @@
       ]
     },
     "deviceInfo": {
-      "manufacturer": "GTECH",
-      "model": "Arduino Nano 33 IOT",
+      "manufacturer": "Arduino",
+      "model": "Nano 33 IOT",
       "hwVersion": "1.0",
       "swVersion": "1.0"
     },
-    "willReportState": false,
+    "willReportState": true,
+    "attributes": {
+      "commandOnlyOnOff": false
+    }
+  },
+  {
+    "id": "fishtank-pump",
+    "type": "action.devices.types.SWITCH",
+    "traits": [
+      "action.devices.traits.OnOff"
+    ],
+    "name": {
+      "defaultNames": [
+        "Fish Tank Pump"
+      ],
+      "name": "Fish Tank Pump",
+      "nicknames": [
+        "Fish Tank Pump"
+      ]
+    },
+    "deviceInfo": {
+      "manufacturer": "Arduino",
+      "model": "Nano 33 IOT",
+      "hwVersion": "1.0",
+      "swVersion": "1.0"
+    },
+    "willReportState": true,
     "attributes": {
       "commandOnlyOnOff": false
     }
