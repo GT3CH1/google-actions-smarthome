@@ -3,6 +3,5 @@
 **/firebase-debug.log
 **/.firebaserc
 **/.firebase
-
 **/functions/*key*.json
-
+**/.idea
