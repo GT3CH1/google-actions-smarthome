@@ -1,80 +1,233 @@
 ﻿[
-  {
-    "id": "outside-lights",
-    "type": "action.devices.types.LIGHT",
-    "traits": [
-      "action.devices.traits.OnOff"
-    ],
-    "name": {
-      "defaultNames": [
-        "Rock Garden Lights"
-      ],
-      "name": "Rock Garden Lights",
-      "nicknames": [
-        "Rock Garden Lights"
-      ]
+    {
+        "id": "rock-lights",
+        "type": "action.devices.types.LIGHT",
+        "traits": [
+            "action.devices.traits.OnOff"
+        ],
+        "name": {
+            "defaultNames": [
+                "Rock Garden Lights"
+            ],
+            "name": "Rock Garden Lights",
+            "nicknames": [
+                "Rock Garden Lights"
+            ]
+        },
+        "deviceInfo": {
+            "manufacturer": "Arduino",
+            "model": "Nano 33 IOT",
+            "hwVersion": "1.0",
+            "swVersion": "1.0"
+        },
+        "willReportState": true,
+        "attributes": {
+            "commandOnlyOnOff": false
+        }
     },
-    "deviceInfo": {
-      "manufacturer": "Arduino",
-      "model": "Nano 33 IOT",
-      "hwVersion": "1.0",
-      "swVersion": "1.0"
+    {
+        "id": "fishtank-light",
+        "type": "action.devices.types.LIGHT",
+        "traits": [
+            "action.devices.traits.OnOff"
+        ],
+        "name": {
+            "defaultNames": [
+                "Fish Tank Light"
+            ],
+            "name": "Fish Tank Light",
+            "nicknames": [
+                "Fish Tank Light"
+            ]
+        },
+        "deviceInfo": {
+            "manufacturer": "Arduino",
+            "model": "Nano 33 IOT",
+            "hwVersion": "1.0",
+            "swVersion": "1.0"
+        },
+        "willReportState": true,
+        "attributes": {
+            "commandOnlyOnOff": false
+        }
     },
-    "willReportState": true,
-    "attributes": {
-      "commandOnlyOnOff": false
+    {
+        "id": "fishtank-pump",
+        "type": "action.devices.types.SWITCH",
+        "traits": [
+            "action.devices.traits.OnOff"
+        ],
+        "name": {
+            "defaultNames": [
+                "Fish Tank Pump"
+            ],
+            "name": "Fish Tank Pump",
+            "nicknames": [
+                "Fish Tank Pump"
+            ]
+        },
+        "deviceInfo": {
+            "manufacturer": "Arduino",
+            "model": "Nano 33 IOT",
+            "hwVersion": "1.0",
+            "swVersion": "1.0"
+        },
+        "willReportState": true,
+        "attributes": {
+            "commandOnlyOnOff": false
+        }
+    },
+    {
+        "id": "garage-door",
+        "type": "action.devices.types.GARAGE",
+        "traits": [
+            "action.devices.traits.OpenClose"
+        ],
+        "name": {
+            "defaultNames": [
+                "PiMation Garage Door"
+            ],
+            "name": "Garage Door",
+            "nicknames": [
+                "Garage",
+                "Garage Door"
+            ]
+        },
+        "deviceInfo": {
+            "manufacturer": "GTECH",
+            "model": "PiMation",
+            "hwVersion": "1.0",
+            "swVersion": "2.0"
+        },
+        "willReportState": true,
+        "attributes": {
+            "discreteOnlyOpenClose": true,
+            "queryOnlyOpenClose": false,
+            "commandOnlyOpenClose": false,
+            "openDirection": [
+                "UP",
+                "DOWN"
+            ]
+        }
+    },
+    {
+        "id": "rtr1",
+        "type": "action.devices.types.ROUTER",
+        "traits": [
+            "action.devices.traits.Reboot"
+        ],
+        "name": {
+            "defaultNames": [
+                "Asus RT-AC66U"
+            ],
+            "name": "Basement Router",
+            "nicknames": [
+                "Basement Router"
+            ]
+        },
+        "deviceInfo": {
+            "manufacturer": "Asus",
+            "model": "RT-AC66U",
+            "hwVersion": "1.0",
+            "swVersion": "Tomato"
+        },
+        "willReportState": true
+    },
+    {
+        "id": "upstairs-tv",
+        "type": "action.devices.types.TV",
+        "traits": [
+            "action.devices.traits.AppSelector",
+            "action.devices.traits.InputSelector",
+            "action.devices.traits.MediaState",
+            "action.devices.traits.TransportControl",
+            "action.devices.traits.Volume",
+            "action.devices.traits.OnOff"
+        ],
+        "name": {
+            "name": "Upstairs TV"
+        },
+        "attributes": {
+            "transportControlSupportedCommands": [
+                "NEXT",
+                "PREVIOUS",
+                "PAUSE",
+                "STOP",
+                "RESUME",
+                "CAPTION_CONTROL"
+            ],
+            "availableApplications": [
+                {
+                    "key": "youtube",
+                    "names": [
+                        {
+                            "name_synonym": [
+                                "Youtube",
+                                "Youtube_en"
+                            ],
+                            "lang": "en"
+                        }
+                    ]
+                }
+            ],
+            "availableInputs": [
+                {
+                    "key": "hdmi_1",
+                    "names": [
+                        {
+                            "name_synonym": [
+                                "HDMI 1",
+                                "DVD player"
+                            ],
+                            "lang": "en"
+                        }
+                    ]
+                },
+                {
+                    "key": "hdmi_2",
+                    "names": [
+                        {
+                            "name_synonym": [
+                                "HDMI 2",
+                                "TV"
+                            ],
+                            "lang": "en"
+                        }
+                    ]
+                }
+            ],
+            "availableChannels": [
+                {
+                    "key": "ktvu2",
+                    "names": [
+                        "Fox",
+                        "KTVU"
+                    ],
+                    "number": "2"
+                },
+                {
+                    "key": "abc1",
+                    "names": [
+                        "ABC",
+                        "ABC East"
+                    ],
+                    "number": "702.4-11"
+                }
+            ],
+            "orderedInputs": false,
+            "volumeMaxLevel": 100,
+            "volumeCanMuteAndUnmute": true,
+            "volumeDefaultPercentage": 10,
+            "levelStepSize": 2,
+            "commandOnlyVolume": false,
+            "supportActivityState": true,
+            "supportPlaybackState": true
+        },
+        "deviceInfo": {
+            "manufacturer": "smart-home-inc",
+            "model": "hs1234",
+            "hwVersion": "3.2",
+            "swVersion": "11.4"
+        }
     }
-  },
-  {
-    "id": "fishtank-light",
-    "type": "action.devices.types.LIGHT",
-    "traits": [
-      "action.devices.traits.OnOff"
-    ],
-    "name": {
-      "defaultNames": [
-        "Fish Tank Light"
-      ],
-      "name": "Fish Tank Light",
-      "nicknames": [
-        "Fish Tank Light"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "Arduino",
-      "model": "Nano 33 IOT",
-      "hwVersion": "1.0",
-      "swVersion": "1.0"
-    },
-    "willReportState": true,
-    "attributes": {
-      "commandOnlyOnOff": false
-    }
-  },
-  {
-    "id": "fishtank-pump",
-    "type": "action.devices.types.SWITCH",
-    "traits": [
-      "action.devices.traits.OnOff"
-    ],
-    "name": {
-      "defaultNames": [
-        "Fish Tank Pump"
-      ],
-      "name": "Fish Tank Pump",
-      "nicknames": [
-        "Fish Tank Pump"
-      ]
-    },
-    "deviceInfo": {
-      "manufacturer": "Arduino",
-      "model": "Nano 33 IOT",
-      "hwVersion": "1.0",
-      "swVersion": "1.0"
-    },
-    "willReportState": true,
-    "attributes": {
-      "commandOnlyOnOff": false
-    }
-  }
 ]

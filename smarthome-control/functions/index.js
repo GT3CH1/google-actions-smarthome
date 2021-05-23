@@ -15,7 +15,7 @@
  */
 
 'use strict';
-
+require('firebase-functions/lib/logger/compat');
 const functions = require('firebase-functions');
 const {smarthome} = require('actions-on-google');
 const {google} = require('googleapis');
@@ -106,8 +106,7 @@ const app = smarthome({
     debug: true,
 })
 
-let devicelist
-devicelist = require('./devices.json')
+let devicelist = require('./devices.json')
 const deviceitems = JSON.parse(JSON.stringify(devicelist));
 
 var devicecounter;
@@ -117,11 +116,86 @@ app.onSync((body) => {
     for (devicecounter = 0; devicecounter < deviceitems.length; devicecounter++) {
         let currDevice = deviceitems[devicecounter];
         let currDeviceTraits = currDevice.traits;
-        
-        if (currDeviceTraits.includes('action.devices.traits.OnOff'))
-            if(!currDevice.hasOwnProperty('OnOff'))
-                firebaseRef.child(currDevice.id).child('OnOff').set({on: false});
+        let firebaseDevice = firebaseRef.child(currDevice.id);
 
+        firebaseDevice.once("value", function (snapshot) {
+            if (currDeviceTraits.includes('action.devices.traits.OnOff')) {
+                let data = {};
+                if (!snapshot.child('OnOff').child('on').exists())
+                    data['on'] = false;
+                if (!snapshot.child('OnOff').child('remote').exists())
+                    data['remote'] = false;
+                if (Object.keys(data).length > 0)
+                    firebaseDevice.child('OnOff').set(data);
+            }
+
+            if (currDeviceTraits.includes('action.devices.traits.OpenClose')) {
+                let data = {};
+                if (!snapshot.child('OpenClose').child('openPercent').exists())
+                    data['openPercent'] = 0;
+                else
+                    data['openPercent'] = snapshot.child('OpenClose').child('openPercent').val();
+
+                if (!snapshot.child('OpenClose').child('remote').exists())
+                    data['remote'] = false;
+                else
+                    data['remote'] = snapshot.child('OpenClose').child('remote').val();
+
+                if (Object.keys(data).length > 0)
+                    firebaseDevice.child('OpenClose').set(data);
+            }
+
+            if (currDeviceTraits.includes('action.devices.traits.Reboot')) {
+                if (!snapshot.child('reboot').exists())
+                    firebaseDevice.child('RebootNow').set({reboot: false});
+            }
+
+            if (currDeviceTraits.includes('action.devices.traits.AppSelector'))
+                if (!snapshot.child('currentApplication').exists())
+                    firebaseDevice.child('currentApplication').set({currentApplication: 'youtube'});
+
+            if (currDeviceTraits.includes('action.devices.traits.InputSelector'))
+                if (!snapshot.child('currentInput').exists())
+                    firebaseDevice.child('currentInput').set({currentInput: 'hdmi_1'});
+
+            if (currDeviceTraits.includes('action.devices.traits.MediaState')) {
+                let data = {};
+                if (!snapshot.child('MediaState').child('activityState').exists())
+                    data['activityState'] = "INACTIVE";
+                else
+                    data['activityState'] = snapshot.child('MediaState').child('activityState').val();
+
+                if (!snapshot.child('MediaState').child('playbackState').exists())
+                    data['playbackState'] = "STOPPED";
+                else
+                    data['playbackState'] = snapshot.child('MediaState').child('playbackState').val();
+
+                if (Object.keys(data).length > 1)
+                    firebaseDevice.child('MediaState').set(data);
+            }
+
+            if (currDeviceTraits.includes('action.devices.traits.Volume')) {
+                let data = {};
+                if (!snapshot.child('Volume').child('currentVolume').exists())
+                    data['currentVolume'] = 10;
+                else
+                    data['currentVolume'] = snapshot.child('Volume').child('currentVolume').val();
+
+                if (!snapshot.child('Volume').child('isMuted').exists())
+                    data['isMuted'] = false;
+                else
+                    data['isMuted'] = snapshot.child('Volume').child('isMuted').val();
+
+                if (!snapshot.child('Volume').child('remote').exists())
+                    data['remote'] = false;
+                else
+                    data['remote'] = snapshot.child('Volume').child('remote').val();
+
+                if (Object.keys(data).length > 1)
+                    firebaseDevice.child('Volume').set(data);
+            }
+
+        });
     }
     return {
         requestId: body.requestId,
@@ -139,9 +213,23 @@ const queryFirebase = async (deviceId) => {
 
     var asyncvalue = {};
 
-    if (Object.prototype.hasOwnProperty.call(snapshotVal, 'OnOff'))
-        asyncvalue = Object.assign(asyncvalue, {on: snapshotVal.OnOff.on});
+    if (snapshotVal.hasOwnProperty('OnOff'))
+        asyncvalue['on'] = snapshotVal.OnOff.on;
+    if (snapshotVal.hasOwnProperty('OpenClose'))
+        asyncvalue['openPercent'] = snapshotVal.OpenClose.openPercent;
+    if (snapshotVal.hasOwnProperty('currentApplication'))
+        asyncvalue['currentApplication'] = 'youtube';
+    if (snapshotVal.hasOwnProperty('currentInput'))
+        asyncvalue['currentInput'] = 'hdmi_1';
+    if (snapshotVal.hasOwnProperty('MediaState')) {
+        asyncvalue['activityState'] = snapshotVal.MediaState.activityState;
+        asyncvalue['playbackState'] = snapshotVal.MediaState.playbackState;
+    }
 
+    if (snapshotVal.hasOwnProperty('Volume')) {
+        asyncvalue['currentVolume'] = snapshotVal.Volume.currentVolume;
+        asyncvalue['isMuted'] = snapshotVal.Volume.isMuted;
+    }
 
     return asyncvalue;
 };
@@ -151,9 +239,23 @@ const queryDevice = async (deviceId) => {
 
     var datavalue = {};
 
-    if (Object.prototype.hasOwnProperty.call(data, 'on'))
-        datavalue = Object.assign(datavalue, {on: data.on});
+    if (data.hasOwnProperty('on'))
+        datavalue['on'] = data.on;
 
+    if (data.hasOwnProperty('openPercent'))
+        datavalue['openPercent'] = data.openPercent;
+
+    if (data.hasOwnProperty('currentApplication'))
+        datavalue['currentApplication'] = data.currentApplication;
+
+    if (data.hasOwnProperty('currentInput'))
+        datavalue['currentInput'] = data.currentInput;
+
+    if (data.hasOwnProperty('currentVolume'))
+        datavalue['currentVolume'] = data.currentVolume;
+
+    if (data.hasOwnProperty('isMuted'))
+        datavalue['isMuted'] = data.isMuted;
 
     return datavalue;
 };
@@ -189,8 +291,50 @@ const updateDevice = async (execution, deviceId) => {
     let ref;
     switch (command) {
         case 'action.devices.commands.OnOff':
-            state = {on: params.on};
+            state = {on: params.on, remote: true};
             ref = firebaseRef.child(deviceId).child('OnOff');
+            break;
+
+        case 'action.devices.commands.Reboot':
+            state = {reboot: true};
+            ref = firebaseRef.child(deviceId).child('RebootNow')
+            break;
+
+        case 'action.devices.commands.OpenClose':
+            var currentOpenClose;
+            ref = firebaseRef.child(deviceId).child('OpenClose');
+            ref.child('openPercent').on("value", function (snapshot) {
+                currentOpenClose = snapshot.val();
+            }, function (errorObject) {
+                console.log("The read failed: " + errorObject.code);
+            });
+            let newState = (currentOpenClose == 100) ? 0 : 100;
+            state = {openPercent: newState, remote: true};
+            break;
+        case 'action.devices.commands.setVolume':
+            state = {currentVolume: params.volumeLevel, remote: true};
+            ref = firebaseRef.child(deviceId).child('Volume');
+            break;
+        case 'action.devices.commands.mute':
+            state = {isMuted: params.mute, remote: true};
+            ref = firebaseRef.child(deviceId).child('Volume');
+            break;
+        case 'action.devices.commands.volumeRelative':
+            ref = firebaseRef.child(deviceId).child('Volume');
+            var currentVol = null;
+            ref.child('currentVolume').on("value", function (snapshot) {
+                currentVol = snapshot.val();
+            }, function (errorObject) {
+                console.log("The read failed: " + errorObject.code);
+            });
+            var volStep = 1 * 2;
+            var newVol = currentVol + volStep;
+            if (newVol <= 0)
+                state = {currentVolume: 0, remote: true};
+            else
+                state = {currentVolume: newVol, remote: true};
+            break;
+        default:
             break;
     }
     return ref.update(state)
@@ -269,48 +413,12 @@ exports.reportstate = functions.database.ref('{deviceId}').onWrite(async (change
 
     var syncvalue = {};
 
-    if (Object.prototype.hasOwnProperty.call(snapshot, 'OnOff')) {
-        syncvalue = Object.assign(syncvalue, {on: snapshot.OnOff.on});
-    }
-    if (Object.prototype.hasOwnProperty.call(snapshot, 'Brightness')) {
-        syncvalue = Object.assign(syncvalue, {brightness: snapshot.Brightness.brightness});
-    }
-    if (Object.prototype.hasOwnProperty.call(snapshot, 'ColorSetting')) {
-        syncvalue = Object.assign(syncvalue, {color: snapshot.ColorSetting.color});
-    }
-    if (Object.prototype.hasOwnProperty.call(snapshot, 'FanSpeed')) {
-        if (Object.prototype.hasOwnProperty.call(snapshot.FanSpeed, 'currentFanSpeedSetting')) {
-            syncvalue = Object.assign(syncvalue, {currentFanSpeedSetting: snapshot.FanSpeed.currentFanSpeedSetting});
-        }
-    }
-    if (Object.prototype.hasOwnProperty.call(snapshot, 'Modes')) {
-        if (Object.prototype.hasOwnProperty.call(snapshot.Modes, 'currentModeSettings')) {
-            syncvalue = Object.assign(syncvalue, {currentModeSettings: snapshot.Modes.currentModeSettings});
-        }
-    }
-    if (Object.prototype.hasOwnProperty.call(snapshot, 'TemperatureSetting')) {
-        if (Object.prototype.hasOwnProperty.call(snapshot.TemperatureSetting, 'thermostatMode')) {
-            syncvalue = Object.assign(syncvalue, {thermostatMode: snapshot.TemperatureSetting.thermostatMode});
-        }
-        if ("thermostatTemperatureSetpoint" in snapshot) {
-            syncvalue = Object.assign(syncvalue, {thermostatTemperatureSetpoint: snapshot.TemperatureSetting.thermostatTemperatureSetpoint});
-        }
-        if ("thermostatTemperatureAmbient" in snapshot) {
-            syncvalue = Object.assign(syncvalue, {thermostatTemperatureAmbient: snapshot.TemperatureSetting.thermostatTemperatureAmbient});
-        }
-        if ('thermostatHumidityAmbient' in snapshot) {
-            syncvalue = Object.assign(syncvalue, {thermostatHumidityAmbient: snapshot.TemperatureSetting.thermostatHumidityAmbient});
-        }
-        if ('thermostatTemperatureSetpointLow' in snapshot) {
-            syncvalue = Object.assign(syncvalue, {thermostatTemperatureSetpointLow: snapshot.TemperatureSetting.thermostatTemperatureSetpointLow});
-        }
-        if ('thermostatTemperatureSetpointHigh' in snapshot) {
-            syncvalue = Object.assign(syncvalue, {thermostatTemperatureSetpointHigh: snapshot.TemperatureSetting.thermostatTemperatureSetpointHigh});
-        }
-    }
-
+    if (snapshot.hasOwnProperty('OnOff'))
+        syncvalue['on'] = snapshot.OnOff.on
+    if (snapshot.hasOwnProperty('MediaState'))
+        syncvalue['playbackState'] = snapshot.MediaState.playbackState
     const postData = {
-        requestId: 'ff36a3ccsiddhy', /* Any unique ID */
+        requestId: 'gtech', /* Any unique ID */
         agentUserId: USER_ID, /* Hardcoded user ID */
         payload: {
             devices: {
