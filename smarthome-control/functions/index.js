@@ -21,6 +21,8 @@ const {smarthome} = require('actions-on-google');
 const {google} = require('googleapis');
 const util = require('util');
 const admin = require('firebase-admin');
+const axios = require('axios')
+
 // Initialize Firebase
 admin.initializeApp();
 const firebaseRef = admin.database().ref('/');
@@ -301,15 +303,19 @@ const updateDevice = async (execution, deviceId) => {
             break;
 
         case 'action.devices.commands.OpenClose':
-            var currentOpenClose;
-            ref = firebaseRef.child(deviceId).child('OpenClose');
-            ref.child('openPercent').on("value", function (snapshot) {
-                currentOpenClose = snapshot.val();
-            }, function (errorObject) {
-                console.log("The read failed: " + errorObject.code);
-            });
-            let newState = (currentOpenClose == 100) ? 0 : 100;
-            state = {openPercent: newState, remote: true};
+            if (deviceId === "garage-door") {
+                state = {openPercent: 100};
+                ref = firebaseRef.child(deviceId).child('openPercent');
+
+                let url = 'https://api.peasenet.com/sprinkler/garage/bf176c86-f96b-4412-bd97-3f09fa5a7ce8/toggle';
+                axios.post(url)
+                    .then(function (response) {
+                        console.log(response);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            }
             break;
         case 'action.devices.commands.setVolume':
             state = {currentVolume: params.volumeLevel, remote: true};
@@ -363,7 +369,7 @@ app.onExecute(async (body) => {
                             result.ids.push(device.id);
                             Object.assign(result.states, data);
                         })
-                        .catch(() => functions.logger.error('EXECUTE', device.id)));
+                        .catch((err) => functions.logger.error('EXECUTE : ' + err, device.id)));
             }
         }
     }
