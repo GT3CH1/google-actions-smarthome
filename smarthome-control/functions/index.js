@@ -107,13 +107,29 @@ const app = smarthome({
     jwt: jwt,
     debug: true,
 })
-
-let devicelist = require('./devices.json')
-const deviceitems = JSON.parse(JSON.stringify(devicelist));
+let api_url = 'https://api.peasenet.com/smarthome';
+let devicelist = null;
+let deviceitems = null;
+axios.get(api_url + '/device/google')
+    .then(function (response) {
+        devicelist = JSON.parse(JSON.stringify(response["data"]));
+        functions.logger.info("Got device list from api");
+        functions.logger.info(devicelist);
+        deviceitems = JSON.parse(JSON.stringify(devicelist));
+    })
+    .catch(err => functions.logger.error(err));
 
 var devicecounter;
 
 app.onSync((body) => {
+    axios.get(api_url + '/device/google')
+        .then(function (response) {
+            devicelist = JSON.parse(JSON.stringify(response["data"]));
+            functions.logger.info("Got device list from api");
+            functions.logger.info(devicelist);
+            deviceitems = JSON.parse(JSON.stringify(devicelist));
+        })
+        .catch(err => functions.logger.error(err));
     functions.logger.log('onSync');
     for (devicecounter = 0; devicecounter < deviceitems.length; devicecounter++) {
         let currDevice = deviceitems[devicecounter];
@@ -295,6 +311,20 @@ const updateDevice = async (execution, deviceId) => {
         case 'action.devices.commands.OnOff':
             state = {on: params.on, remote: true};
             ref = firebaseRef.child(deviceId).child('OnOff');
+            functions.logger.info(api_url + '/device');
+
+            axios.post(api_url + '/device', {
+                "guid": deviceId,
+                "state": params.on
+            })
+                .then(function (response) {
+                    functions.logger.log("DONE SENDING REQUEST => " + JSON.parse(response.data));
+                })
+                .catch(function (error) {
+                    functions.logger.log("ERROR IN REQUEST");
+                    functions.logger.log(error);
+                });
+            functions.logger.info("Should've posted");
             break;
 
         case 'action.devices.commands.Reboot':
@@ -303,19 +333,17 @@ const updateDevice = async (execution, deviceId) => {
             break;
 
         case 'action.devices.commands.OpenClose':
-            if (deviceId === "garage-door") {
-                state = {openPercent: 100};
-                ref = firebaseRef.child(deviceId).child('openPercent');
+            state = {openPercent: 100};
+            ref = firebaseRef.child(deviceId).child('openPercent');
 
-                let url = 'https://api.peasenet.com/sprinkler/garage/bf176c86-f96b-4412-bd97-3f09fa5a7ce8/toggle';
-                axios.post(url)
-                    .then(function (response) {
-                        console.log(response);
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
-            }
+            let url = 'https://api.peasenet.com/sprinkler/garage/bf176c86-f96b-4412-bd97-3f09fa5a7ce8/toggle';
+            axios.post(url)
+                .then(function (response) {
+                    functions.logger.log(response);
+                })
+                .catch(function (error) {
+                    functions.logger.log(error);
+                });
             break;
         case 'action.devices.commands.setVolume':
             state = {currentVolume: params.volumeLevel, remote: true};
@@ -331,7 +359,7 @@ const updateDevice = async (execution, deviceId) => {
             ref.child('currentVolume').on("value", function (snapshot) {
                 currentVol = snapshot.val();
             }, function (errorObject) {
-                console.log("The read failed: " + errorObject.code);
+                functions.logger.log("The read failed: " + errorObject.code);
             });
             var volStep = 1 * 2;
             var newVol = currentVol + volStep;
