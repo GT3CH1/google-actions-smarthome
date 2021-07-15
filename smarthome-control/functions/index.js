@@ -252,27 +252,21 @@ const queryFirebase = async (deviceId) => {
 };
 
 const queryDevice = async (deviceId) => {
-    const data = await queryFirebase(deviceId);
-
     var datavalue = {};
+    await axios.get(api_url + "/device/" + deviceId)
+        .then(function (response) {
+            functions.logger.log(response.data);
+            functions.logger.log(typeof(response));
+            if (deviceId === "bf176c86-f96b-4412-bd97-3f09fa5a7ce8") {
+                let val = (response.data.contains("true")) ? 0 : 100;
 
-    if (data.hasOwnProperty('on'))
-        datavalue['on'] = data.on;
+                datavalue['openPercent'] = val;
+            } else {
+                datavalue['on'] = response.data.contains("true");
+            }
+            return datavalue;
+        })
 
-    if (data.hasOwnProperty('openPercent'))
-        datavalue['openPercent'] = data.openPercent;
-
-    if (data.hasOwnProperty('currentApplication'))
-        datavalue['currentApplication'] = data.currentApplication;
-
-    if (data.hasOwnProperty('currentInput'))
-        datavalue['currentInput'] = data.currentInput;
-
-    if (data.hasOwnProperty('currentVolume'))
-        datavalue['currentVolume'] = data.currentVolume;
-
-    if (data.hasOwnProperty('isMuted'))
-        datavalue['isMuted'] = data.isMuted;
 
     return datavalue;
 };
