@@ -128,100 +128,99 @@ app.onSync((body) => {
             functions.logger.info("Got device list from api");
             functions.logger.info(devicelist);
             deviceitems = JSON.parse(JSON.stringify(devicelist));
+            functions.logger.log('onSync');
+            for (devicecounter = 0; devicecounter < deviceitems.length; devicecounter++) {
+                let currDevice = deviceitems[devicecounter];
+                let currDeviceTraits = currDevice.traits;
+                let firebaseDevice = firebaseRef.child(currDevice.id);
+                firebaseDevice.once("value", function (snapshot) {
+                    if (currDeviceTraits.includes('action.devices.traits.OnOff')) {
+                        let data = {};
+                        if (!snapshot.child('OnOff').child('on').exists())
+                            data['on'] = false;
+                        if (!snapshot.child('OnOff').child('remote').exists())
+                            data['remote'] = false;
+                        if (Object.keys(data).length > 0)
+                            firebaseDevice.child('OnOff').set(data);
+                    }
+
+                    if (currDeviceTraits.includes('action.devices.traits.OpenClose')) {
+                        let data = {};
+                        if (!snapshot.child('OpenClose').child('openPercent').exists())
+                            data['openPercent'] = 0;
+                        else
+                            data['openPercent'] = snapshot.child('OpenClose').child('openPercent').val();
+
+                        if (!snapshot.child('OpenClose').child('remote').exists())
+                            data['remote'] = false;
+                        else
+                            data['remote'] = snapshot.child('OpenClose').child('remote').val();
+
+                        if (Object.keys(data).length > 0)
+                            firebaseDevice.child('OpenClose').set(data);
+                    }
+
+                    if (currDeviceTraits.includes('action.devices.traits.Reboot')) {
+                        if (!snapshot.child('reboot').exists())
+                            firebaseDevice.child('RebootNow').set({reboot: false});
+                    }
+
+                    if (currDeviceTraits.includes('action.devices.traits.AppSelector'))
+                        if (!snapshot.child('currentApplication').exists())
+                            firebaseDevice.child('currentApplication').set({currentApplication: 'youtube'});
+
+                    if (currDeviceTraits.includes('action.devices.traits.InputSelector'))
+                        if (!snapshot.child('currentInput').exists())
+                            firebaseDevice.child('currentInput').set({currentInput: 'hdmi_1'});
+
+                    if (currDeviceTraits.includes('action.devices.traits.MediaState')) {
+                        let data = {};
+                        if (!snapshot.child('MediaState').child('activityState').exists())
+                            data['activityState'] = "INACTIVE";
+                        else
+                            data['activityState'] = snapshot.child('MediaState').child('activityState').val();
+
+                        if (!snapshot.child('MediaState').child('playbackState').exists())
+                            data['playbackState'] = "STOPPED";
+                        else
+                            data['playbackState'] = snapshot.child('MediaState').child('playbackState').val();
+
+                        if (Object.keys(data).length > 1)
+                            firebaseDevice.child('MediaState').set(data);
+                    }
+
+                    if (currDeviceTraits.includes('action.devices.traits.Volume')) {
+                        let data = {};
+                        if (!snapshot.child('Volume').child('currentVolume').exists())
+                            data['currentVolume'] = 10;
+                        else
+                            data['currentVolume'] = snapshot.child('Volume').child('currentVolume').val();
+
+                        if (!snapshot.child('Volume').child('isMuted').exists())
+                            data['isMuted'] = false;
+                        else
+                            data['isMuted'] = snapshot.child('Volume').child('isMuted').val();
+
+                        if (!snapshot.child('Volume').child('remote').exists())
+                            data['remote'] = false;
+                        else
+                            data['remote'] = snapshot.child('Volume').child('remote').val();
+
+                        if (Object.keys(data).length > 1)
+                            firebaseDevice.child('Volume').set(data);
+                    }
+
+                });
+            }
+            return {
+                requestId: body.requestId,
+                payload: {
+                    agentUserId: USER_ID,
+                    devices: deviceitems
+                },
+            };
         })
         .catch(err => functions.logger.error(err));
-    functions.logger.log('onSync');
-    for (devicecounter = 0; devicecounter < deviceitems.length; devicecounter++) {
-        let currDevice = deviceitems[devicecounter];
-        let currDeviceTraits = currDevice.traits;
-        let firebaseDevice = firebaseRef.child(currDevice.id);
-
-        firebaseDevice.once("value", function (snapshot) {
-            if (currDeviceTraits.includes('action.devices.traits.OnOff')) {
-                let data = {};
-                if (!snapshot.child('OnOff').child('on').exists())
-                    data['on'] = false;
-                if (!snapshot.child('OnOff').child('remote').exists())
-                    data['remote'] = false;
-                if (Object.keys(data).length > 0)
-                    firebaseDevice.child('OnOff').set(data);
-            }
-
-            if (currDeviceTraits.includes('action.devices.traits.OpenClose')) {
-                let data = {};
-                if (!snapshot.child('OpenClose').child('openPercent').exists())
-                    data['openPercent'] = 0;
-                else
-                    data['openPercent'] = snapshot.child('OpenClose').child('openPercent').val();
-
-                if (!snapshot.child('OpenClose').child('remote').exists())
-                    data['remote'] = false;
-                else
-                    data['remote'] = snapshot.child('OpenClose').child('remote').val();
-
-                if (Object.keys(data).length > 0)
-                    firebaseDevice.child('OpenClose').set(data);
-            }
-
-            if (currDeviceTraits.includes('action.devices.traits.Reboot')) {
-                if (!snapshot.child('reboot').exists())
-                    firebaseDevice.child('RebootNow').set({reboot: false});
-            }
-
-            if (currDeviceTraits.includes('action.devices.traits.AppSelector'))
-                if (!snapshot.child('currentApplication').exists())
-                    firebaseDevice.child('currentApplication').set({currentApplication: 'youtube'});
-
-            if (currDeviceTraits.includes('action.devices.traits.InputSelector'))
-                if (!snapshot.child('currentInput').exists())
-                    firebaseDevice.child('currentInput').set({currentInput: 'hdmi_1'});
-
-            if (currDeviceTraits.includes('action.devices.traits.MediaState')) {
-                let data = {};
-                if (!snapshot.child('MediaState').child('activityState').exists())
-                    data['activityState'] = "INACTIVE";
-                else
-                    data['activityState'] = snapshot.child('MediaState').child('activityState').val();
-
-                if (!snapshot.child('MediaState').child('playbackState').exists())
-                    data['playbackState'] = "STOPPED";
-                else
-                    data['playbackState'] = snapshot.child('MediaState').child('playbackState').val();
-
-                if (Object.keys(data).length > 1)
-                    firebaseDevice.child('MediaState').set(data);
-            }
-
-            if (currDeviceTraits.includes('action.devices.traits.Volume')) {
-                let data = {};
-                if (!snapshot.child('Volume').child('currentVolume').exists())
-                    data['currentVolume'] = 10;
-                else
-                    data['currentVolume'] = snapshot.child('Volume').child('currentVolume').val();
-
-                if (!snapshot.child('Volume').child('isMuted').exists())
-                    data['isMuted'] = false;
-                else
-                    data['isMuted'] = snapshot.child('Volume').child('isMuted').val();
-
-                if (!snapshot.child('Volume').child('remote').exists())
-                    data['remote'] = false;
-                else
-                    data['remote'] = snapshot.child('Volume').child('remote').val();
-
-                if (Object.keys(data).length > 1)
-                    firebaseDevice.child('Volume').set(data);
-            }
-
-        });
-    }
-    return {
-        requestId: body.requestId,
-        payload: {
-            agentUserId: USER_ID,
-            devices: deviceitems
-        },
-    };
 });
 
 
