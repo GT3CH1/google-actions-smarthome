@@ -21,11 +21,7 @@ const {smarthome} = require('actions-on-google');
 const {google} = require('googleapis');
 const util = require('util');
 const admin = require('firebase-admin');
-const axios = require('axios')
-
-// Initialize Firebase
-admin.initializeApp();
-const firebaseRef = admin.database().ref('/');
+const axios = require('axios');
 
 // Hardcoded user ID
 const USER_ID = '123';
@@ -110,7 +106,7 @@ const app = smarthome({
 let api_url = 'https://api.peasenet.com/smarthome';
 let devicelist = null;
 let deviceitems = null;
-axios.get(api_url + '/device/google')
+axios.get(api_url + '/google')
     .then(function (response) {
         devicelist = JSON.parse(JSON.stringify(response["data"]));
         functions.logger.info("Got device list from api");
@@ -122,152 +118,41 @@ axios.get(api_url + '/device/google')
 var devicecounter;
 
 app.onSync((body) => {
-    axios.get(api_url + '/device/google')
+    axios.get(api_url + '/google')
         .then(function (response) {
-            devicelist = JSON.parse(JSON.stringify(response["data"]));
+            devicelist = JSON.parse(response["data"]);
             functions.logger.info("Got device list from api");
             functions.logger.info(devicelist);
-            deviceitems = JSON.parse(JSON.stringify(devicelist));
             functions.logger.log('onSync');
-            for (devicecounter = 0; devicecounter < deviceitems.length; devicecounter++) {
-                let currDevice = deviceitems[devicecounter];
-                let currDeviceTraits = currDevice.traits;
-                let firebaseDevice = firebaseRef.child(currDevice.id);
-                firebaseDevice.once("value", function (snapshot) {
-                    if (currDeviceTraits.includes('action.devices.traits.OnOff')) {
-                        let data = {};
-                        if (!snapshot.child('OnOff').child('on').exists())
-                            data['on'] = false;
-                        if (!snapshot.child('OnOff').child('remote').exists())
-                            data['remote'] = false;
-                        if (Object.keys(data).length > 0)
-                            firebaseDevice.child('OnOff').set(data);
-                    }
-
-                    if (currDeviceTraits.includes('action.devices.traits.OpenClose')) {
-                        let data = {};
-                        if (!snapshot.child('OpenClose').child('openPercent').exists())
-                            data['openPercent'] = 0;
-                        else
-                            data['openPercent'] = snapshot.child('OpenClose').child('openPercent').val();
-
-                        if (!snapshot.child('OpenClose').child('remote').exists())
-                            data['remote'] = false;
-                        else
-                            data['remote'] = snapshot.child('OpenClose').child('remote').val();
-
-                        if (Object.keys(data).length > 0)
-                            firebaseDevice.child('OpenClose').set(data);
-                    }
-
-                    if (currDeviceTraits.includes('action.devices.traits.Reboot')) {
-                        if (!snapshot.child('reboot').exists())
-                            firebaseDevice.child('RebootNow').set({reboot: false});
-                    }
-
-                    if (currDeviceTraits.includes('action.devices.traits.AppSelector'))
-                        if (!snapshot.child('currentApplication').exists())
-                            firebaseDevice.child('currentApplication').set({currentApplication: 'youtube'});
-
-                    if (currDeviceTraits.includes('action.devices.traits.InputSelector'))
-                        if (!snapshot.child('currentInput').exists())
-                            firebaseDevice.child('currentInput').set({currentInput: 'hdmi_1'});
-
-                    if (currDeviceTraits.includes('action.devices.traits.MediaState')) {
-                        let data = {};
-                        if (!snapshot.child('MediaState').child('activityState').exists())
-                            data['activityState'] = "INACTIVE";
-                        else
-                            data['activityState'] = snapshot.child('MediaState').child('activityState').val();
-
-                        if (!snapshot.child('MediaState').child('playbackState').exists())
-                            data['playbackState'] = "STOPPED";
-                        else
-                            data['playbackState'] = snapshot.child('MediaState').child('playbackState').val();
-
-                        if (Object.keys(data).length > 1)
-                            firebaseDevice.child('MediaState').set(data);
-                    }
-
-                    if (currDeviceTraits.includes('action.devices.traits.Volume')) {
-                        let data = {};
-                        if (!snapshot.child('Volume').child('currentVolume').exists())
-                            data['currentVolume'] = 10;
-                        else
-                            data['currentVolume'] = snapshot.child('Volume').child('currentVolume').val();
-
-                        if (!snapshot.child('Volume').child('isMuted').exists())
-                            data['isMuted'] = false;
-                        else
-                            data['isMuted'] = snapshot.child('Volume').child('isMuted').val();
-
-                        if (!snapshot.child('Volume').child('remote').exists())
-                            data['remote'] = false;
-                        else
-                            data['remote'] = snapshot.child('Volume').child('remote').val();
-
-                        if (Object.keys(data).length > 1)
-                            firebaseDevice.child('Volume').set(data);
-                    }
-
-                });
-            }
             return {
                 requestId: body.requestId,
                 payload: {
                     agentUserId: USER_ID,
-                    devices: deviceitems
+                    devices: devicelist
                 },
             };
         })
         .catch(err => functions.logger.error(err));
 });
 
-
-const queryFirebase = async (deviceId) => {
-    const snapshot = await firebaseRef.child(deviceId).once('value');
-    const snapshotVal = snapshot.val();
-
-    var asyncvalue = {};
-
-    if (snapshotVal.hasOwnProperty('OnOff'))
-        asyncvalue['on'] = snapshotVal.OnOff.on;
-    if (snapshotVal.hasOwnProperty('OpenClose'))
-        asyncvalue['openPercent'] = snapshotVal.OpenClose.openPercent;
-    if (snapshotVal.hasOwnProperty('currentApplication'))
-        asyncvalue['currentApplication'] = 'youtube';
-    if (snapshotVal.hasOwnProperty('currentInput'))
-        asyncvalue['currentInput'] = 'hdmi_1';
-    if (snapshotVal.hasOwnProperty('MediaState')) {
-        asyncvalue['activityState'] = snapshotVal.MediaState.activityState;
-        asyncvalue['playbackState'] = snapshotVal.MediaState.playbackState;
-    }
-
-    if (snapshotVal.hasOwnProperty('Volume')) {
-        asyncvalue['currentVolume'] = snapshotVal.Volume.currentVolume;
-        asyncvalue['isMuted'] = snapshotVal.Volume.isMuted;
-    }
-
-    return asyncvalue;
-};
-
 const queryDevice = async (deviceId) => {
     var datavalue = {};
     await axios.get(api_url + "/device/" + deviceId)
         .then(function (response) {
-            functions.logger.log(response.data);
-            functions.logger.log(typeof(response));
-            if (deviceId === "bf176c86-f96b-4412-bd97-3f09fa5a7ce8") {
-                let val = (response.data.contains("true")) ? 0 : 100;
-
-                datavalue['openPercent'] = val;
-            } else {
-                datavalue['on'] = response.data.contains("true");
+            let json = JSON.parse(JSON.stringify(response.data));
+            let kind = json["kind"];
+            let state = json["last_state"];
+            switch (kind) {
+                case "GARAGE":
+                    let val = 0;
+                    if (state)
+                        val = 100
+                    datavalue['openPercent'] = val;
+                default:
+                    datavalue['on'] = state;
             }
             return datavalue;
         })
-
-
     return datavalue;
 };
 
@@ -314,10 +199,9 @@ const updateDevice = async (execution, deviceId) => {
                     functions.logger.log("DONE SENDING REQUEST => " + JSON.parse(response.data));
                 })
                 .catch(function (error) {
-                    functions.logger.log("ERROR IN REQUEST");
-                    functions.logger.log(error);
+                    functions.logger.error("ERROR IN REQUEST");
+                    functions.logger.error(error);
                 });
-            functions.logger.info("Should've posted");
             break;
 
         case 'action.devices.commands.Reboot':
@@ -335,7 +219,7 @@ const updateDevice = async (execution, deviceId) => {
                     functions.logger.log(response);
                 })
                 .catch(function (error) {
-                    functions.logger.log(error);
+                    functions.logger.error(error);
                 });
             break;
         case 'action.devices.commands.setVolume':
@@ -352,7 +236,7 @@ const updateDevice = async (execution, deviceId) => {
             ref.child('currentVolume').on("value", function (snapshot) {
                 currentVol = snapshot.val();
             }, function (errorObject) {
-                functions.logger.log("The read failed: " + errorObject.code);
+                functions.logger.error("The read failed: " + errorObject.code);
             });
             var volStep = 1 * 2;
             var newVol = currentVol + volStep;
